@@ -1,0 +1,107 @@
+.widget {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+}
+
+.streak {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding-right: 18px;
+  border-right: 1px solid var(--color-border);
+}
+
+.streakIcon {
+  font-size: 26px;
+}
+
+.streakValue {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.goalBlock {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.goalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.goalLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.editBtn {
+  background: transparent;
+  border: none;
+  color: var(--color-accent);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 2px 4px;
+  flex-shrink: 0;
+}
+
+.editBtn:hover {
+  text-decoration: underline;
+}
+
+.goalSelect {
+  background: var(--color-bg-elevated-2);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.progressTrack {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--color-bg-elevated-2);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--color-accent);
+  transition: width 0.3s ease;
+}
+
+.progressFillDone {
+  height: 100%;
+  background: var(--color-success);
+  transition: width 0.3s ease;
+}
+
+@media (max-width: 500px) {
+  .widget {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .streak {
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+    padding-right: 0;
+    padding-bottom: 12px;
+    justify-content: center;
+  }
+}

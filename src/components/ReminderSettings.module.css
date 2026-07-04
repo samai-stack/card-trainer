@@ -1,0 +1,84 @@
+.box {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.icon {
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.textCol {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.title {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.timeRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-left: 36px;
+}
+
+.timeLabel {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.timeInput {
+  background: var(--color-bg-elevated-2);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 14px;
+}
+
+.warning {
+  color: var(--color-danger);
+  font-size: 13px;
+}
+
+.hint {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+.note {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+}
+
+@media (max-width: 500px) {
+  .row {
+    flex-wrap: wrap;
+  }
+
+  .timeRow {
+    padding-left: 0;
+  }
+}

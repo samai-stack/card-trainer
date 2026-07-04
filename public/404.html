@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <title>Тренажёр английских слов</title>
+    <script>
+      // GitHub Pages отдаёт этот файл на любой путь, которого нет физически на диске.
+      // Наше приложение — SPA с клиентским роутингом (React Router), поэтому такие пути
+      // существуют только внутри приложения. Кодируем реальный путь в query-параметр
+      // и уходим на index.html — там скрипт в <head> развернёт его обратно.
+      var basePath = '/card-trainer/'
+      var realPath = location.pathname.slice(basePath.length)
+      var redirectTarget =
+        basePath + '?redirect=' + encodeURIComponent(realPath + location.search + location.hash)
+      location.replace(redirectTarget)
+    </script>
+  </head>
+  <body></body>
+</html>

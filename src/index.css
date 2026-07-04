@@ -1,0 +1,145 @@
+/* Глобальные стили и переменные темы. Тёмная тема — по умолчанию,
+   светлая включается атрибутом data-theme="light" на <html> */
+
+:root {
+  --color-bg: #14151a;
+  --color-bg-elevated: #1e2028;
+  --color-bg-elevated-2: #262835;
+  --color-border: #34364a;
+  --color-text: #f1f1f6;
+  --color-text-secondary: #a3a6b8;
+  --color-accent: #8b6cf6;
+  --color-accent-hover: #9d82f8;
+  --color-accent-text: #ffffff;
+  --color-success: #34d399;
+  --color-success-hover: #22c085;
+  --color-danger: #f76a6a;
+  --color-danger-hover: #f14e4e;
+  --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --radius-md: 12px;
+  --radius-lg: 20px;
+
+  color-scheme: dark;
+}
+
+:root[data-theme='light'] {
+  --color-bg: #f6f5fb;
+  --color-bg-elevated: #ffffff;
+  --color-bg-elevated-2: #eeecf9;
+  --color-border: #e0dff0;
+  --color-text: #201f2b;
+  --color-text-secondary: #6b6b7b;
+  --color-accent: #7c5cf0;
+  --color-accent-hover: #6c4de0;
+  --color-accent-text: #ffffff;
+  --color-success: #12a874;
+  --color-success-hover: #0e8f62;
+  --color-danger: #e0433f;
+  --color-danger-hover: #c8322e;
+  --shadow-soft: 0 10px 30px rgba(30, 20, 60, 0.12);
+
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+h1, h2, h3, p {
+  margin: 0;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input, select {
+  font-family: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+/* Универсальная кнопка */
+.btn {
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-elevated-2);
+  color: var(--color-text);
+  border-radius: var(--radius-md);
+  padding: 10px 18px;
+  font-size: 15px;
+  font-weight: 600;
+  transition: transform 0.1s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn:hover {
+  border-color: var(--color-accent);
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-primary {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-accent-text);
+}
+
+.btn-primary:hover {
+  background: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
+}
+
+.btn-danger-outline {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+  background: transparent;
+}
+
+.btn-danger-outline:hover {
+  background: var(--color-danger);
+  color: #fff;
+}
+
+.text-input {
+  background: var(--color-bg-elevated-2);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-size: 15px;
+  width: 100%;
+}
+
+.text-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}

@@ -1,0 +1,176 @@
+.wrapper {
+  width: min(90vw, 460px);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  text-align: center;
+}
+
+.prompt {
+  font-size: clamp(26px, 5.5vw, 36px);
+  font-weight: 700;
+}
+
+.letters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 5px;
+  min-height: 40px;
+}
+
+.letter {
+  min-width: 28px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 17px;
+  font-weight: 700;
+  text-transform: lowercase;
+  background: var(--color-bg-elevated-2);
+  color: var(--color-text);
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.space {
+  width: 14px;
+}
+
+.letterEmpty {
+  color: var(--color-text-secondary);
+}
+
+.letterCorrect {
+  background: var(--color-success);
+  border-color: var(--color-success);
+  color: #fff;
+}
+
+.letterWrong {
+  background: var(--color-danger);
+  border-color: var(--color-danger);
+  color: #fff;
+}
+
+.input {
+  width: 100%;
+  background: var(--color-bg-elevated-2);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  font-size: 18px;
+  text-align: center;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.giveUpBtn,
+.checkBtn,
+.nextBtn {
+  flex: 1;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.1s ease, filter 0.15s ease;
+}
+
+.giveUpBtn:active,
+.checkBtn:active,
+.nextBtn:active {
+  transform: scale(0.97);
+}
+
+.giveUpBtn {
+  background: transparent;
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+}
+
+.giveUpBtn:hover {
+  background: var(--color-danger);
+  color: #fff;
+}
+
+.checkBtn {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+}
+
+.checkBtn:hover {
+  background: var(--color-accent-hover);
+}
+
+.checkBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.nextBtn {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  width: 100%;
+}
+
+.nextBtn:hover {
+  background: var(--color-accent-hover);
+}
+
+.key {
+  font-size: 11px;
+  opacity: 0.8;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 6px;
+  padding: 0 6px;
+}
+
+.resultCorrect,
+.resultWrong {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.resultCorrect {
+  color: var(--color-success);
+}
+
+.resultWrong {
+  color: var(--color-danger);
+}
+
+.example {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  font-style: italic;
+}
+
+@media (max-width: 500px) {
+  .actions {
+    flex-direction: column;
+  }
+}

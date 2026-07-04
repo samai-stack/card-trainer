@@ -1,0 +1,111 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px;
+}
+
+.card {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  text-align: center;
+}
+
+.value,
+.valueSuccess {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.valueSuccess {
+  color: var(--color-success);
+}
+
+.label {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-top: 4px;
+}
+
+.streakBlock {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+}
+
+.streakIcon {
+  font-size: 32px;
+}
+
+.streakValue {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.streakHint {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.chartBlock {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+}
+
+.chartTitle {
+  font-size: 15px;
+  color: var(--color-text-secondary);
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+.chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 140px;
+}
+
+.barCol {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  gap: 6px;
+}
+
+.bar {
+  width: 100%;
+  max-width: 22px;
+  border-radius: 4px 4px 0 0;
+  background: var(--color-accent);
+  min-height: 4px;
+  transition: height 0.2s ease;
+}
+
+.barLabel {
+  font-size: 10px;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+@media (max-width: 500px) {
+  .barLabel {
+    display: none;
+  }
+}

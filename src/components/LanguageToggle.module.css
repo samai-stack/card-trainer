@@ -1,0 +1,21 @@
+.toggle {
+  min-width: 42px;
+  height: 42px;
+  padding: 0 8px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-elevated-2);
+  color: var(--color-text);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.toggle:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}

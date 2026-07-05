@@ -3,6 +3,7 @@
 // Компонент нужно монтировать заново на каждую карточку (передавать key={card.id} снаружи) —
 // тогда внутреннее состояние (введённый текст, фаза) само сбрасывается для нового слова
 import { useState } from 'react'
+import { useAppData } from '../context/AppDataContext'
 import { isPhotoImage } from '../storage/imageUtils'
 import styles from './TypingCard.module.css'
 
@@ -11,6 +12,7 @@ function normalize(str) {
 }
 
 export function TypingCard({ prompt, answer, example, image, onResult }) {
+  const { t } = useAppData()
   const [value, setValue] = useState('')
   const [phase, setPhase] = useState('typing') // 'typing' — вводим, 'result' — показан результат
   const [wasCorrect, setWasCorrect] = useState(false)
@@ -73,14 +75,14 @@ export function TypingCard({ prompt, answer, example, image, onResult }) {
             value={value}
             onChange={(e) => setValue(e.target.value)}
             onKeyDown={handleInputKeyDown}
-            placeholder="Введите слово…"
+            placeholder={t('typing.placeholder')}
             autoComplete="off"
             autoCapitalize="off"
             spellCheck="false"
           />
           <div className={styles.actions}>
             <button type="button" className={styles.giveUpBtn} onClick={handleGiveUp}>
-              Не знаю
+              {t('typing.giveUp')}
             </button>
             <button
               type="button"
@@ -88,14 +90,14 @@ export function TypingCard({ prompt, answer, example, image, onResult }) {
               disabled={!value.trim()}
               onClick={handleCheck}
             >
-              Проверить <span className={styles.key}>Enter</span>
+              {t('typing.check')} <span className={styles.key}>Enter</span>
             </button>
           </div>
         </>
       ) : (
         <>
           <div className={wasCorrect ? styles.resultCorrect : styles.resultWrong}>
-            {wasCorrect ? '✅ Верно!' : `Правильный ответ: «${answer}»`}
+            {wasCorrect ? t('typing.correct') : t('typing.wrongAnswer', { answer })}
           </div>
           {example && <div className={styles.example}>«{example}»</div>}
           <button
@@ -104,7 +106,7 @@ export function TypingCard({ prompt, answer, example, image, onResult }) {
             autoFocus
             onClick={() => onResult(wasCorrect)}
           >
-            Далее <span className={styles.key}>Enter</span>
+            {t('typing.next')} <span className={styles.key}>Enter</span>
           </button>
         </>
       )}

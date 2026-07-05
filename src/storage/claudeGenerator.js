@@ -54,7 +54,8 @@ function buildPrompt(topic, count, level) {
 }
 
 // Выполняет запрос к Messages API Anthropic напрямую из браузера и возвращает
-// массив { word, translation, example }. Бросает Error с понятным текстом при сбое.
+// массив { word, translation, example }. При сбое бросает Error с полем i18nCode
+// для перевода на языке интерфейса (см. createI18nError).
 export async function generateDeckWithClaude({ apiKey, topic, count, level }) {
   const maxTokens = Math.max(1024, Math.min(8192, count * 120))
 
@@ -82,32 +83,42 @@ export async function generateDeckWithClaude({ apiKey, topic, count, level }) {
     const body = await response.json().catch(() => null)
     const message = body?.error?.message
     if (response.status === 401) {
-      throw new Error('Неверный API-ключ Anthropic')
+      throw createI18nError('invalidApiKey')
     }
     if (response.status === 429) {
-      throw new Error('Превышен лимит запросов к Anthropic API, попробуйте чуть позже')
+      throw createI18nError('rateLimited')
     }
-    throw new Error(message || `Ошибка Anthropic API (${response.status})`)
+    throw createI18nError('apiError', { status: response.status }, message)
   }
 
   const data = await response.json()
   if (data.stop_reason === 'refusal') {
-    throw new Error('Claude отказался генерировать ответ на этот запрос')
+    throw createI18nError('refusal')
   }
 
   const textBlock = (data.content || []).find((block) => block.type === 'text')
   if (!textBlock) {
-    throw new Error('Не удалось получить ответ от Claude')
+    throw createI18nError('noResponse')
   }
 
   let parsed
   try {
     parsed = JSON.parse(textBlock.text)
   } catch {
-    throw new Error('Claude вернул ответ в неожиданном формате')
+    throw createI18nError('badJson')
   }
   if (!Array.isArray(parsed.words)) {
-    throw new Error('Некорректный формат ответа от Claude')
+    throw createI18nError('badFormat')
   }
   return parsed.words
+}
+
+// Создаёт Error с кодом для перевода (i18nCode/i18nVars): GenerateDeckDialog
+// превращает его в t('generate.error.<code>', vars). fallbackMessage — только
+// для message (например, для консоли), интерфейс его не показывает.
+function createI18nError(code, vars, fallbackMessage) {
+  const err = new Error(fallbackMessage || code)
+  err.i18nCode = code
+  err.i18nVars = vars
+  return err
 }

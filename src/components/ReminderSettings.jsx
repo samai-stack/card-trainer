@@ -6,7 +6,7 @@ import styles from './ReminderSettings.module.css'
 const isNotificationSupported = typeof window !== 'undefined' && 'Notification' in window
 
 export function ReminderSettings() {
-  const { reminder, setReminderEnabled, setReminderTime } = useAppData()
+  const { reminder, setReminderEnabled, setReminderTime, t } = useAppData()
   const [permission, setPermission] = useState(
     isNotificationSupported ? Notification.permission : 'unsupported'
   )
@@ -26,7 +26,7 @@ export function ReminderSettings() {
   if (!isNotificationSupported) {
     return (
       <div className={styles.box}>
-        <p className={styles.hint}>🔔 Ваш браузер не поддерживает уведомления.</p>
+        <p className={styles.hint}>{t('reminder.unsupported')}</p>
       </div>
     )
   }
@@ -36,20 +36,20 @@ export function ReminderSettings() {
       <div className={styles.row}>
         <span className={styles.icon}>🔔</span>
         <div className={styles.textCol}>
-          <span className={styles.title}>Напоминания о тренировке</span>
+          <span className={styles.title}>{t('reminder.title')}</span>
           <span className={styles.subtitle}>
             {reminder.enabled
-              ? `Включены — уведомление придёт в ${reminder.time}, если цель на день ещё не выполнена`
-              : 'Присылать уведомление в браузере, если сегодня ещё не тренировались'}
+              ? t('reminder.enabledSubtitle', { time: reminder.time })
+              : t('reminder.disabledSubtitle')}
           </span>
         </div>
         {reminder.enabled ? (
           <button type="button" className="btn" onClick={handleDisable}>
-            Выключить
+            {t('reminder.turnOff')}
           </button>
         ) : (
           <button type="button" className="btn btn-primary" onClick={handleEnable}>
-            Включить
+            {t('reminder.turnOn')}
           </button>
         )}
       </div>
@@ -57,7 +57,7 @@ export function ReminderSettings() {
       {reminder.enabled && (
         <div className={styles.timeRow}>
           <label htmlFor="reminder-time" className={styles.timeLabel}>
-            Время напоминания
+            {t('reminder.timeLabel')}
           </label>
           <input
             id="reminder-time"
@@ -69,15 +69,9 @@ export function ReminderSettings() {
         </div>
       )}
 
-      {permission === 'denied' && (
-        <p className={styles.warning}>
-          Уведомления заблокированы в браузере. Разрешите их в настройках сайта, чтобы напоминания приходили.
-        </p>
-      )}
+      {permission === 'denied' && <p className={styles.warning}>{t('reminder.denied')}</p>}
 
-      <p className={styles.note}>
-        Напоминание сработает, только если вкладка с приложением открыта в браузере в нужный момент.
-      </p>
+      <p className={styles.note}>{t('reminder.note')}</p>
     </div>
   )
 }

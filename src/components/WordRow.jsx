@@ -1,11 +1,13 @@
 // Одна строка списка слов: просмотр или редактирование
 import { useRef, useState } from 'react'
+import { useAppData } from '../context/AppDataContext'
 import { ProgressDots } from './ProgressDots'
 import { describeNextReview } from '../storage/leitner'
 import { resizeImageFile, isPhotoImage } from '../storage/imageUtils'
 import styles from './WordRow.module.css'
 
 export function WordRow({ card, onSave, onDelete, checkDuplicate }) {
+  const { t, language } = useAppData()
   const [isEditing, setIsEditing] = useState(false)
   const [draft, setDraft] = useState({
     word: card.word,
@@ -34,7 +36,7 @@ export function WordRow({ card, onSave, onDelete, checkDuplicate }) {
       const dataUrl = await resizeImageFile(file)
       setDraft((d) => ({ ...d, image: dataUrl }))
     } catch {
-      setWarning('Не удалось загрузить картинку')
+      setWarning(t('wordForm.imageFailed'))
     }
   }
 
@@ -47,12 +49,12 @@ export function WordRow({ card, onSave, onDelete, checkDuplicate }) {
     const wordTrimmed = draft.word.trim()
     const translationTrimmed = draft.translation.trim()
     if (!wordTrimmed || !translationTrimmed) {
-      setWarning('Слово и перевод не должны быть пустыми')
+      setWarning(t('wordRow.emptyFields'))
       return
     }
     const duplicate = checkDuplicate(wordTrimmed, card.id)
     if (duplicate) {
-      setWarning(`Слово «${duplicate.word}» уже есть в этой колоде`)
+      setWarning(t('wordForm.duplicate', { word: duplicate.word }))
       return
     }
     onSave({
@@ -72,20 +74,20 @@ export function WordRow({ card, onSave, onDelete, checkDuplicate }) {
             className="text-input"
             value={draft.word}
             onChange={(e) => setDraft({ ...draft, word: e.target.value })}
-            placeholder="Слово"
+            placeholder={t('wordRow.wordPlaceholder')}
             autoFocus
           />
           <input
             className="text-input"
             value={draft.translation}
             onChange={(e) => setDraft({ ...draft, translation: e.target.value })}
-            placeholder="Перевод"
+            placeholder={t('wordRow.translationPlaceholder')}
           />
           <input
             className="text-input"
             value={draft.example}
             onChange={(e) => setDraft({ ...draft, example: e.target.value })}
-            placeholder="Пример (необязательно)"
+            placeholder={t('wordRow.examplePlaceholder')}
           />
         </div>
 
@@ -103,7 +105,7 @@ export function WordRow({ card, onSave, onDelete, checkDuplicate }) {
             </div>
           ) : (
             <label className={styles.imagePickBtn}>
-              🖼️ Картинка
+              {t('wordRow.image')}
               <input
                 ref={fileInputRef}
                 type="file"
@@ -118,10 +120,10 @@ export function WordRow({ card, onSave, onDelete, checkDuplicate }) {
         {warning && <p className={styles.warning}>{warning}</p>}
         <div className={styles.editActions}>
           <button type="button" className="btn" onClick={() => setIsEditing(false)}>
-            Отмена
+            {t('common.cancel')}
           </button>
           <button type="button" className="btn btn-primary" onClick={handleSave}>
-            Сохранить
+            {t('common.save')}
           </button>
         </div>
       </div>
@@ -147,13 +149,13 @@ export function WordRow({ card, onSave, onDelete, checkDuplicate }) {
         </div>
         <div className={styles.metaCol}>
           <ProgressDots box={card.box} />
-          <span className={styles.nextReview}>{describeNextReview(card.nextReview)}</span>
+          <span className={styles.nextReview}>{describeNextReview(card.nextReview, language)}</span>
         </div>
         <div className={styles.actions}>
-          <button type="button" className={styles.iconBtn} title="Редактировать" onClick={startEdit}>
+          <button type="button" className={styles.iconBtn} title={t('common.edit')} onClick={startEdit}>
             ✏️
           </button>
-          <button type="button" className={styles.iconBtn} title="Удалить" onClick={onDelete}>
+          <button type="button" className={styles.iconBtn} title={t('common.delete')} onClick={onDelete}>
             🗑️
           </button>
         </div>

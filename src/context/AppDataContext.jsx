@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState } from 
 import { loadAppData, saveAppData } from '../storage/storage'
 import { createCard, createDeck } from '../storage/models'
 import { applyAnswer, nowIso, todayStr } from '../storage/leitner'
+import { translate } from '../i18n/translations'
 
 const AppDataContext = createContext(null)
 
@@ -47,8 +48,9 @@ export function AppDataProvider({ children }) {
       const doneToday = current.history[today] || 0
       if (doneToday >= current.dailyGoal) return
 
-      new Notification('Пора потренироваться! 🧠', {
-        body: `Сегодня повторено ${doneToday} из ${current.dailyGoal} слов. Загляните в тренажёр карточек.`,
+      const lang = current.language
+      new Notification(translate(lang, 'reminder.notificationTitle'), {
+        body: translate(lang, 'reminder.notificationBody', { done: doneToday, goal: current.dailyGoal }),
       })
       setData((prev) => ({ ...prev, reminder: { ...prev.reminder, lastNotifiedDate: today } }))
     }
@@ -169,11 +171,20 @@ export function AppDataProvider({ children }) {
       setReminderTime(time) {
         setData((prev) => ({ ...prev, reminder: { ...prev.reminder, time } }))
       },
+
+      setLanguage(language) {
+        setData((prev) => ({ ...prev, language }))
+      },
     }),
     [data]
   )
 
-  const value = useMemo(() => ({ ...data, ...actions }), [data, actions])
+  // Функция перевода, привязанная к текущему выбранному языку интерфейса
+  const t = useMemo(() => {
+    return (key, vars) => translate(data.language, key, vars)
+  }, [data.language])
+
+  const value = useMemo(() => ({ ...data, ...actions, t }), [data, actions, t])
 
   return <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>
 }

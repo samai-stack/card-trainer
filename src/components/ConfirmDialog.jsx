@@ -1,7 +1,9 @@
 // Простое модальное окно подтверждения действия (например, удаления)
+import { useAppData } from '../context/AppDataContext'
 import styles from './ConfirmDialog.module.css'
 
-export function ConfirmDialog({ title, message, confirmLabel = 'Удалить', onConfirm, onCancel }) {
+export function ConfirmDialog({ title, message, confirmLabel, onConfirm, onCancel }) {
+  const { t } = useAppData()
   return (
     <div className={styles.overlay} onClick={onCancel}>
       <div className={styles.dialog} onClick={(e) => e.stopPropagation()}>
@@ -9,10 +11,10 @@ export function ConfirmDialog({ title, message, confirmLabel = 'Удалить',
         {message && <p className={styles.message}>{message}</p>}
         <div className={styles.actions}>
           <button type="button" className="btn" onClick={onCancel}>
-            Отмена
+            {t('common.cancel')}
           </button>
           <button type="button" className="btn btn-danger-outline" onClick={onConfirm}>
-            {confirmLabel}
+            {confirmLabel || t('common.delete')}
           </button>
         </div>
       </div>

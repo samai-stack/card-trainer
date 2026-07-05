@@ -1,11 +1,13 @@
 // Диалог генерации колоды по теме через Anthropic API (Claude)
 import { useState } from 'react'
+import { useAppData } from '../context/AppDataContext'
 import { generateDeckWithClaude, getSavedApiKey, saveApiKey } from '../storage/claudeGenerator'
 import styles from './GenerateDeckDialog.module.css'
 
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
 
 export function GenerateDeckDialog({ onClose, onGenerate }) {
+  const { t } = useAppData()
   const [topic, setTopic] = useState('')
   const [count, setCount] = useState(20)
   const [level, setLevel] = useState('B1')
@@ -18,11 +20,11 @@ export function GenerateDeckDialog({ onClose, onGenerate }) {
     const trimmedTopic = topic.trim()
     const trimmedKey = apiKey.trim()
     if (!trimmedTopic) {
-      setError('Введите тему колоды')
+      setError(t('generate.enterTopic'))
       return
     }
     if (!trimmedKey) {
-      setError('Введите API-ключ Anthropic')
+      setError(t('generate.enterApiKey'))
       return
     }
 
@@ -38,7 +40,7 @@ export function GenerateDeckDialog({ onClose, onGenerate }) {
       saveApiKey(trimmedKey)
       onGenerate(`${trimmedTopic} (${level})`, words)
     } catch (err) {
-      setError(err.message || 'Не удалось сгенерировать колоду')
+      setError(err.i18nCode ? t(`generate.error.${err.i18nCode}`, err.i18nVars) : t('generate.genericError'))
     } finally {
       setLoading(false)
     }
@@ -47,13 +49,13 @@ export function GenerateDeckDialog({ onClose, onGenerate }) {
   return (
     <div className={styles.overlay} onClick={loading ? undefined : onClose}>
       <div className={styles.dialog} onClick={(e) => e.stopPropagation()}>
-        <h3 className={styles.title}>🤖 Сгенерировать колоду по теме</h3>
+        <h3 className={styles.title}>{t('generate.title')}</h3>
         <form onSubmit={handleSubmit} className={styles.form}>
           <label className={styles.label}>
-            Тема
+            {t('generate.topicLabel')}
             <input
               className="text-input"
-              placeholder="Например: путешествия"
+              placeholder={t('generate.topicPlaceholder')}
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               disabled={loading}
@@ -63,7 +65,7 @@ export function GenerateDeckDialog({ onClose, onGenerate }) {
 
           <div className={styles.row}>
             <label className={styles.label}>
-              Слов
+              {t('generate.countLabel')}
               <input
                 type="number"
                 className="text-input"
@@ -75,7 +77,7 @@ export function GenerateDeckDialog({ onClose, onGenerate }) {
               />
             </label>
             <label className={styles.label}>
-              Уровень
+              {t('generate.levelLabel')}
               <select
                 className="text-input"
                 value={level}
@@ -92,7 +94,7 @@ export function GenerateDeckDialog({ onClose, onGenerate }) {
           </div>
 
           <label className={styles.label}>
-            API-ключ Anthropic
+            {t('generate.apiKeyLabel')}
             <input
               type="password"
               className="text-input"
@@ -102,20 +104,16 @@ export function GenerateDeckDialog({ onClose, onGenerate }) {
               disabled={loading}
             />
           </label>
-          <p className={styles.hint}>
-            Ключ хранится только в этом браузере и отправляется напрямую в Anthropic API — без
-            какого-либо своего сервера. Получить ключ можно в консоли Anthropic
-            (console.anthropic.com). Каждый запрос расходует средства с вашего аккаунта Anthropic.
-          </p>
+          <p className={styles.hint}>{t('generate.hint')}</p>
 
           {error && <p className={styles.error}>{error}</p>}
 
           <div className={styles.actions}>
             <button type="button" className="btn" onClick={onClose} disabled={loading}>
-              Отмена
+              {t('common.cancel')}
             </button>
             <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? 'Генерирую…' : 'Сгенерировать'}
+              {loading ? t('generate.generating') : t('generate.submit')}
             </button>
           </div>
         </form>

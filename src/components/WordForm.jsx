@@ -1,9 +1,11 @@
 // Форма добавления нового слова в колоду
 import { useRef, useState } from 'react'
+import { useAppData } from '../context/AppDataContext'
 import { resizeImageFile } from '../storage/imageUtils'
 import styles from './WordForm.module.css'
 
 export function WordForm({ onAdd, checkDuplicate }) {
+  const { t } = useAppData()
   const [word, setWord] = useState('')
   const [translation, setTranslation] = useState('')
   const [example, setExample] = useState('')
@@ -19,7 +21,7 @@ export function WordForm({ onAdd, checkDuplicate }) {
       const dataUrl = await resizeImageFile(file)
       setImage(dataUrl)
     } catch {
-      setWarning('Не удалось загрузить картинку')
+      setWarning(t('wordForm.imageFailed'))
     }
   }
 
@@ -34,13 +36,13 @@ export function WordForm({ onAdd, checkDuplicate }) {
     const translationTrimmed = translation.trim()
 
     if (!wordTrimmed || !translationTrimmed) {
-      setWarning('Заполните слово и перевод')
+      setWarning(t('wordForm.fillRequired'))
       return
     }
 
     const duplicate = checkDuplicate(wordTrimmed)
     if (duplicate) {
-      setWarning(`Слово «${duplicate.word}» уже есть в этой колоде`)
+      setWarning(t('wordForm.duplicate', { word: duplicate.word }))
       return
     }
 
@@ -61,7 +63,7 @@ export function WordForm({ onAdd, checkDuplicate }) {
         <input
           ref={wordInputRef}
           className="text-input"
-          placeholder="Слово (на английском)"
+          placeholder={t('wordForm.wordPlaceholder')}
           value={word}
           onChange={(e) => {
             setWord(e.target.value)
@@ -70,7 +72,7 @@ export function WordForm({ onAdd, checkDuplicate }) {
         />
         <input
           className="text-input"
-          placeholder="Перевод"
+          placeholder={t('wordForm.translationPlaceholder')}
           value={translation}
           onChange={(e) => {
             setTranslation(e.target.value)
@@ -80,7 +82,7 @@ export function WordForm({ onAdd, checkDuplicate }) {
       </div>
       <input
         className="text-input"
-        placeholder="Пример предложения (необязательно)"
+        placeholder={t('wordForm.examplePlaceholder')}
         value={example}
         onChange={(e) => setExample(e.target.value)}
       />
@@ -95,7 +97,7 @@ export function WordForm({ onAdd, checkDuplicate }) {
           </div>
         ) : (
           <label className={styles.imagePickBtn}>
-            🖼️ Добавить картинку
+            {t('wordForm.addImage')}
             <input
               ref={fileInputRef}
               type="file"
@@ -109,7 +111,7 @@ export function WordForm({ onAdd, checkDuplicate }) {
 
       {warning && <p className={styles.warning}>{warning}</p>}
       <button type="submit" className="btn btn-primary">
-        Добавить слово
+        {t('wordForm.submit')}
       </button>
     </form>
   )

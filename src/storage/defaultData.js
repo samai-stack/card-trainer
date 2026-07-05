@@ -2,6 +2,7 @@
 // чтобы оно не выглядело пустым
 
 import { createCard, createDeck } from './models'
+import { DEFAULT_LANGUAGE } from '../i18n/translations'
 
 const STARTER_WORDS = [
   { word: 'hello', translation: 'привет', example: 'Hello, how are you?' },
@@ -29,6 +30,8 @@ export function createDefaultAppData() {
     history: {},
     // цель на день — сколько повторений хочет делать пользователь ежедневно
     dailyGoal: 20,
+    // язык интерфейса ('ru' | 'en') — не влияет на содержимое колод
+    language: DEFAULT_LANGUAGE,
     // напоминание о тренировке через браузерные уведомления
     reminder: {
       enabled: false,

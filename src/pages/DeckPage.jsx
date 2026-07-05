@@ -8,12 +8,13 @@ import { ConfirmDialog } from '../components/ConfirmDialog'
 import { countDueToday } from '../storage/leitner'
 import { lookupEmoji } from '../storage/emojiDictionary'
 import { resizeImageFile, filenameToWordKey } from '../storage/imageUtils'
+import { pluralKey } from '../i18n/translations'
 import styles from './DeckPage.module.css'
 
 export function DeckPage() {
   const { deckId } = useParams()
   const navigate = useNavigate()
-  const { decks, addCard, updateCard, deleteCard, findDuplicate } = useAppData()
+  const { decks, addCard, updateCard, deleteCard, findDuplicate, t, language } = useAppData()
   const [search, setSearch] = useState('')
   const [cardToDelete, setCardToDelete] = useState(null)
   // Направление тренировки: обычное (слово → перевод) или обратное (перевод → слово)
@@ -38,9 +39,7 @@ export function DeckPage() {
       }
     }
     setImagesMessage(
-      candidates === 0
-        ? 'У всех слов уже есть картинка'
-        : `Готово: эмодзи найдены для ${filled} из ${candidates} слов без картинки`
+      candidates === 0 ? t('deck.allHaveImages') : t('deck.emojiFilled', { filled, candidates })
     )
   }
 
@@ -68,9 +67,11 @@ export function DeckPage() {
       }
     }
 
-    const summary = `Загружено ${matched} из ${files.length}`
+    const summary = t('deck.bulkUploaded', { matched, total: files.length })
     setImagesMessage(
-      unmatched.length > 0 ? `${summary}. Не найдено слов для: ${unmatched.join(', ')}` : summary
+      unmatched.length > 0
+        ? summary + t('deck.bulkUnmatched', { names: unmatched.join(', ') })
+        : summary
     )
   }
 
@@ -87,9 +88,9 @@ export function DeckPage() {
   if (!deck) {
     return (
       <div className={styles.notFound}>
-        <p>Такая колода не найдена — возможно, она была удалена.</p>
+        <p>{t('deck.notFound')}</p>
         <Link to="/" className="btn btn-primary">
-          На главную
+          {t('common.home')}
         </Link>
       </div>
     )
@@ -101,14 +102,18 @@ export function DeckPage() {
     <div className={styles.page}>
       <div className={styles.top}>
         <Link to="/" className={styles.back}>
-          ← Все колоды
+          {t('deck.back')}
         </Link>
         <h1>{deck.name}</h1>
         <p className={styles.subtitle}>
-          {deck.cards.length} слов, {dueToday} ждут повторения сегодня
+          {t('deck.subtitle', {
+            total: deck.cards.length,
+            wordForm: t(`deckTile.word${pluralKey(language, deck.cards.length)}`),
+            due: dueToday,
+          })}
         </p>
 
-        <div className={styles.directionSwitch} role="radiogroup" aria-label="Направление тренировки">
+        <div className={styles.directionSwitch} role="radiogroup" aria-label={t('deck.directionLabel')}>
           <button
             type="button"
             role="radio"
@@ -116,7 +121,7 @@ export function DeckPage() {
             className={direction === 'forward' ? styles.directionActive : styles.directionOption}
             onClick={() => setDirection('forward')}
           >
-            Слово → перевод
+            {t('deck.directionForward')}
           </button>
           <button
             type="button"
@@ -125,11 +130,11 @@ export function DeckPage() {
             className={direction === 'reverse' ? styles.directionActive : styles.directionOption}
             onClick={() => setDirection('reverse')}
           >
-            Перевод → слово
+            {t('deck.directionReverse')}
           </button>
         </div>
 
-        <div className={styles.directionSwitch} role="radiogroup" aria-label="Способ ответа">
+        <div className={styles.directionSwitch} role="radiogroup" aria-label={t('deck.answerModeLabel')}>
           <button
             type="button"
             role="radio"
@@ -137,7 +142,7 @@ export function DeckPage() {
             className={answerMode === 'flip' ? styles.directionActive : styles.directionOption}
             onClick={() => setAnswerMode('flip')}
           >
-            Карточки
+            {t('deck.answerModeFlip')}
           </button>
           <button
             type="button"
@@ -146,7 +151,7 @@ export function DeckPage() {
             className={answerMode === 'type' ? styles.directionActive : styles.directionOption}
             onClick={() => setAnswerMode('type')}
           >
-            Ввод с клавиатуры
+            {t('deck.answerModeType')}
           </button>
         </div>
 
@@ -162,7 +167,7 @@ export function DeckPage() {
             navigate(`/deck/${deck.id}/train${query ? `?${query}` : ''}`)
           }}
         >
-          Начать тренировку
+          {t('deck.startTraining')}
         </button>
       </div>
 
@@ -174,10 +179,10 @@ export function DeckPage() {
       {deck.cards.length > 0 && (
         <div className={styles.imagesTools}>
           <button type="button" className="btn" onClick={handleAutoFillEmoji}>
-            🎲 Заполнить эмодзи автоматически
+            {t('deck.autoFillEmoji')}
           </button>
           <label className={`btn ${styles.bulkFileLabel}`}>
-            📁 Загрузить картинки пачкой
+            {t('deck.bulkUpload')}
             <input
               type="file"
               accept="image/*"
@@ -192,17 +197,15 @@ export function DeckPage() {
 
       <input
         className="text-input"
-        placeholder="Поиск по словам или переводу…"
+        placeholder={t('deck.searchPlaceholder')}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
 
       {deck.cards.length === 0 ? (
-        <p className={styles.empty}>
-          В этой колоде пока нет слов. Добавьте первое с помощью формы выше.
-        </p>
+        <p className={styles.empty}>{t('deck.emptyDeck')}</p>
       ) : filteredCards.length === 0 ? (
-        <p className={styles.empty}>Ничего не найдено по запросу «{search}»</p>
+        <p className={styles.empty}>{t('deck.noResults', { query: search })}</p>
       ) : (
         <div className={styles.list}>
           {filteredCards.map((card) => (
@@ -219,7 +222,8 @@ export function DeckPage() {
 
       {cardToDelete && (
         <ConfirmDialog
-          title={`Удалить слово «${cardToDelete.word}»?`}
+          title={t('deck.deleteWordTitle', { word: cardToDelete.word })}
+          confirmLabel={t('common.delete')}
           onCancel={() => setCardToDelete(null)}
           onConfirm={() => {
             deleteCard(deck.id, cardToDelete.id)

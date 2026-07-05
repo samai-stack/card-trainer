@@ -46,7 +46,7 @@ export function TrainingPage() {
   const { deckId } = useParams()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const { decks, answerCard } = useAppData()
+  const { decks, answerCard, t } = useAppData()
   const deck = decks.find((d) => d.id === deckId)
   // Направление и способ ответа задаются ссылкой со страницы колоды:
   // ?dir=reverse — перевод → слово, ?mode=type — ввод с клавиатуры вместо переворота карточки
@@ -153,9 +153,9 @@ export function TrainingPage() {
   if (!deck) {
     return (
       <div className={styles.center}>
-        <p>Такая колода не найдена.</p>
+        <p>{t('training.deckNotFound')}</p>
         <Link to="/" className="btn btn-primary">
-          На главную
+          {t('common.home')}
         </Link>
       </div>
     )
@@ -165,10 +165,10 @@ export function TrainingPage() {
     return (
       <div className={styles.center}>
         <p className={styles.bigIcon}>🗂️</p>
-        <h2>В этой колоде пока нет слов</h2>
-        <p className={styles.hintText}>Добавьте несколько слов, чтобы начать тренировку.</p>
+        <h2>{t('training.emptyTitle')}</h2>
+        <p className={styles.hintText}>{t('training.emptyHint')}</p>
         <Link to={`/deck/${deck.id}`} className="btn btn-primary">
-          К колоде
+          {t('training.toDeck')}
         </Link>
       </div>
     )
@@ -179,20 +179,20 @@ export function TrainingPage() {
     return (
       <div className={styles.center}>
         <p className={styles.bigIcon}>✅</p>
-        <h2>Сессия завершена</h2>
-        <p className={styles.summaryLine}>Слов повторено: {session.total}</p>
+        <h2>{t('training.sessionComplete')}</h2>
+        <p className={styles.summaryLine}>{t('training.wordsReviewed', { count: session.total })}</p>
         <div className={styles.summaryRow}>
-          <span className={styles.again}>Ещё раз: {stats.again}</span>
-          <span className={styles.hard}>Трудно: {stats.hard}</span>
-          <span className={styles.good}>Хорошо: {stats.good}</span>
-          <span className={styles.easy}>Легко: {stats.easy}</span>
+          <span className={styles.again}>{t('training.again')}: {stats.again}</span>
+          <span className={styles.hard}>{t('training.hard')}: {stats.hard}</span>
+          <span className={styles.good}>{t('training.good')}: {stats.good}</span>
+          <span className={styles.easy}>{t('training.easy')}: {stats.easy}</span>
         </div>
         <div className={styles.summaryActions}>
           <button type="button" className="btn" onClick={() => navigate(`/deck/${deck.id}`)}>
-            На главную
+            {t('common.home')}
           </button>
           <button type="button" className="btn btn-primary" onClick={restartSession}>
-            Ещё раз
+            {t('training.restart')}
           </button>
         </div>
       </div>
@@ -214,16 +214,16 @@ export function TrainingPage() {
           </div>
         </div>
         <span className={styles.modeBadge}>
-          {isReverse ? 'Перевод → слово' : 'Слово → перевод'}
-          {isTyping ? ' · ввод' : ''}
+          {isReverse ? t('deck.directionReverse') : t('deck.directionForward')}
+          {isTyping ? t('training.directionSuffix') : ''}
         </span>
         {session.isFreePractice && (
-          <span className={styles.modeBadge} title="Сегодня по расписанию повторять нечего — тренируемся всеми словами колоды">
-            🔁 Свободная тренировка
+          <span className={styles.modeBadge} title={t('training.freePracticeHint')}>
+            {t('training.freePractice')}
           </span>
         )}
         <Link to={`/deck/${deck.id}`} className={styles.exitLink}>
-          Завершить
+          {t('training.finish')}
         </Link>
       </div>
 
@@ -252,20 +252,20 @@ export function TrainingPage() {
       {!isTyping && (
         <div className={styles.answerArea}>
           {!isFlipped ? (
-            <p className={styles.hintText}>Нажмите на карточку или пробел, чтобы увидеть перевод</p>
+            <p className={styles.hintText}>{t('training.flipHint')}</p>
           ) : (
             <div className={styles.answerButtons}>
               <button type="button" className={styles.againBtn} onClick={() => handleAnswer('again')}>
-                Ещё раз <span className={styles.key}>1</span>
+                {t('training.again')} <span className={styles.key}>1</span>
               </button>
               <button type="button" className={styles.hardBtn} onClick={() => handleAnswer('hard')}>
-                Трудно <span className={styles.key}>2</span>
+                {t('training.hard')} <span className={styles.key}>2</span>
               </button>
               <button type="button" className={styles.goodBtn} onClick={() => handleAnswer('good')}>
-                Хорошо <span className={styles.key}>3</span>
+                {t('training.good')} <span className={styles.key}>3</span>
               </button>
               <button type="button" className={styles.easyBtn} onClick={() => handleAnswer('easy')}>
-                Легко <span className={styles.key}>4</span>
+                {t('training.easy')} <span className={styles.key}>4</span>
               </button>
             </div>
           )}

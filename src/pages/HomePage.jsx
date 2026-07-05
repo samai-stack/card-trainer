@@ -13,7 +13,7 @@ const TOP_1000_DECK_NAME = 'Топ-1000 слов'
 
 export function HomePage() {
   const navigate = useNavigate()
-  const { decks, addDeck, importDeck, renameDeck, deleteDeck } = useAppData()
+  const { decks, addDeck, importDeck, renameDeck, deleteDeck, t } = useAppData()
   const [newDeckName, setNewDeckName] = useState('')
   const [deckToDelete, setDeckToDelete] = useState(null) // id колоды, которую собираемся удалить
   const [warning, setWarning] = useState('')
@@ -44,11 +44,11 @@ export function HomePage() {
     e.preventDefault()
     const trimmed = newDeckName.trim()
     if (!trimmed) {
-      setWarning('Введите название колоды')
+      setWarning(t('home.enterDeckName'))
       return
     }
     if (decks.some((d) => d.name.trim().toLowerCase() === trimmed.toLowerCase())) {
-      setWarning(`Колода «${trimmed}» уже существует`)
+      setWarning(t('home.deckExists', { name: trimmed }))
       return
     }
     addDeck(trimmed)
@@ -61,11 +61,11 @@ export function HomePage() {
       <DailyGoalWidget />
 
       <div className={styles.top}>
-        <h1>Мои колоды</h1>
+        <h1>{t('home.title')}</h1>
         <form className={styles.createForm} onSubmit={handleCreateDeck}>
           <input
             className="text-input"
-            placeholder="Название новой колоды"
+            placeholder={t('home.newDeckPlaceholder')}
             value={newDeckName}
             onChange={(e) => {
               setNewDeckName(e.target.value)
@@ -73,7 +73,7 @@ export function HomePage() {
             }}
           />
           <button type="submit" className="btn btn-primary">
-            Создать колоду
+            {t('home.createDeck')}
           </button>
         </form>
         {warning && <p className={styles.warning}>{warning}</p>}
@@ -85,9 +85,7 @@ export function HomePage() {
             disabled={hasTop1000Deck}
             onClick={handleImportTop1000}
           >
-            {hasTop1000Deck
-              ? `Колода «${TOP_1000_DECK_NAME}» уже добавлена`
-              : `+ Добавить готовую колоду «${TOP_1000_DECK_NAME}»`}
+            {hasTop1000Deck ? t('home.top1000Added') : t('home.top1000Add')}
           </button>
 
           <button
@@ -95,7 +93,7 @@ export function HomePage() {
             className={styles.presetBtn}
             onClick={() => setShowGenerateDialog(true)}
           >
-            🤖 Сгенерировать колоду по теме
+            {t('home.generateDeck')}
           </button>
         </div>
       </div>
@@ -108,9 +106,7 @@ export function HomePage() {
       )}
 
       {decks.length === 0 ? (
-        <p className={styles.empty}>
-          Пока нет ни одной колоды. Создайте первую, чтобы начать добавлять слова.
-        </p>
+        <p className={styles.empty}>{t('home.empty')}</p>
       ) : (
         <div className={styles.grid}>
           {decks.map((deck) => (
@@ -126,8 +122,9 @@ export function HomePage() {
 
       {deckToDelete && (
         <ConfirmDialog
-          title={`Удалить колоду «${deckToDelete.name}»?`}
-          message={`Все слова (${deckToDelete.cards.length}) внутри колоды будут удалены без возможности восстановления.`}
+          title={t('home.deleteDeckTitle', { name: deckToDelete.name })}
+          message={t('home.deleteDeckMessage', { count: deckToDelete.cards.length })}
+          confirmLabel={t('common.delete')}
           onCancel={() => setDeckToDelete(null)}
           onConfirm={() => {
             deleteDeck(deckToDelete.id)

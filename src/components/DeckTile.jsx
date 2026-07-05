@@ -1,11 +1,14 @@
 // Плитка одной колоды на главной странице: название, счётчики, действия
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAppData } from '../context/AppDataContext'
 import { countDueToday } from '../storage/leitner'
+import { pluralKey } from '../i18n/translations'
 import styles from './DeckTile.module.css'
 
 export function DeckTile({ deck, onRename, onDelete }) {
   const navigate = useNavigate()
+  const { t, language } = useAppData()
   const [isEditing, setIsEditing] = useState(false)
   const [nameDraft, setNameDraft] = useState(deck.name)
 
@@ -49,7 +52,7 @@ export function DeckTile({ deck, onRename, onDelete }) {
           <button
             type="button"
             className={styles.iconBtn}
-            title="Переименовать"
+            title={t('deckTile.rename')}
             onClick={() => setIsEditing(true)}
           >
             ✏️
@@ -57,7 +60,7 @@ export function DeckTile({ deck, onRename, onDelete }) {
           <button
             type="button"
             className={styles.iconBtn}
-            title="Удалить колоду"
+            title={t('deckTile.delete')}
             onClick={onDelete}
           >
             🗑️
@@ -66,15 +69,17 @@ export function DeckTile({ deck, onRename, onDelete }) {
       </div>
 
       <div className={styles.stats}>
-        <span>{total} {wordsLabel(total)}</span>
+        <span>
+          {total} {t(`deckTile.word${pluralKey(language, total)}`)}
+        </span>
         <span className={dueToday > 0 ? styles.dueHighlight : undefined}>
-          {dueToday > 0 ? `${dueToday} ждут повторения` : 'нечего повторять'}
+          {dueToday > 0 ? t('deckTile.due', { count: dueToday }) : t('deckTile.nothingDue')}
         </span>
       </div>
 
       <div className={styles.actions}>
         <button type="button" className="btn" onClick={() => navigate(`/deck/${deck.id}`)}>
-          Открыть
+          {t('deckTile.open')}
         </button>
         <button
           type="button"
@@ -82,17 +87,9 @@ export function DeckTile({ deck, onRename, onDelete }) {
           disabled={total === 0}
           onClick={() => navigate(`/deck/${deck.id}/train`)}
         >
-          Повторить
+          {t('deckTile.review')}
         </button>
       </div>
     </div>
   )
-}
-
-function wordsLabel(count) {
-  const mod10 = count % 10
-  const mod100 = count % 100
-  if (mod10 === 1 && mod100 !== 11) return 'слово'
-  if ([2, 3, 4].includes(mod10) && ![12, 13, 14].includes(mod100)) return 'слова'
-  return 'слов'
 }

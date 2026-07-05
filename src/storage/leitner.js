@@ -83,21 +83,32 @@ export function countDueToday(cards, nowIsoValue = nowIso()) {
 }
 
 // Человеко-понятное описание момента следующего повторения
-export function describeNextReview(iso, nowIsoValue = nowIso()) {
+export function describeNextReview(iso, lang = 'ru', nowIsoValue = nowIso()) {
   const diffMs = new Date(iso).getTime() - new Date(nowIsoValue).getTime()
-  if (diffMs <= 0) return 'сейчас'
+  const isEn = lang === 'en'
+  if (diffMs <= 0) return isEn ? 'now' : 'сейчас'
 
   const diffMinutes = diffMs / (1000 * 60)
-  if (diffMinutes < 60) return `через ${Math.round(diffMinutes)} мин.`
+  if (diffMinutes < 60) {
+    const n = Math.round(diffMinutes)
+    return isEn ? `in ${n} min` : `через ${n} мин.`
+  }
 
   const diffHours = diffMinutes / 60
-  if (diffHours < 24) return `через ${Math.round(diffHours)} ч.`
+  if (diffHours < 24) {
+    const n = Math.round(diffHours)
+    return isEn ? `in ${n} h` : `через ${n} ч.`
+  }
 
   const diffDays = diffHours / 24
-  if (diffDays < 30) return `через ${Math.round(diffDays)} дн.`
+  if (diffDays < 30) {
+    const n = Math.round(diffDays)
+    return isEn ? `in ${n} d` : `через ${n} дн.`
+  }
 
   const diffMonths = diffDays / 30
-  return `через ${Math.round(diffMonths)} мес.`
+  const n = Math.round(diffMonths)
+  return isEn ? `in ${n} mo` : `через ${n} мес.`
 }
 
 // Стрик: сколько дней подряд были тренировки (по объекту history { 'YYYY-MM-DD': count })

@@ -2,11 +2,12 @@
 import { useMemo } from 'react'
 import { useAppData } from '../context/AppDataContext'
 import { calcStreak, lastNDaysActivity } from '../storage/leitner'
+import { pluralKey } from '../i18n/translations'
 import { ReminderSettings } from '../components/ReminderSettings'
 import styles from './StatsPage.module.css'
 
 export function StatsPage() {
-  const { decks, history } = useAppData()
+  const { decks, history, t, language } = useAppData()
 
   const allCards = useMemo(() => decks.flatMap((d) => d.cards), [decks])
 
@@ -24,27 +25,29 @@ export function StatsPage() {
 
   return (
     <div className={styles.page}>
-      <h1>Статистика</h1>
+      <h1>{t('stats.title')}</h1>
 
       <div className={styles.cards}>
-        <StatCard label="Всего слов" value={totals.total} />
-        <StatCard label="Выучено" value={totals.learned} accent="success" />
-        <StatCard label="В процессе" value={totals.inProgress} />
-        <StatCard label="Новых" value={totals.fresh} />
+        <StatCard label={t('stats.total')} value={totals.total} />
+        <StatCard label={t('stats.learned')} value={totals.learned} accent="success" />
+        <StatCard label={t('stats.inProgress')} value={totals.inProgress} />
+        <StatCard label={t('stats.new')} value={totals.fresh} />
       </div>
 
       <div className={styles.streakBlock}>
         <span className={styles.streakIcon}>🔥</span>
         <div>
-          <div className={styles.streakValue}>{streak} {daysLabel(streak)} подряд</div>
+          <div className={styles.streakValue}>
+            {t('stats.streak', { count: streak, dayForm: t(`stats.day${pluralKey(language, streak)}`) })}
+          </div>
           <div className={styles.streakHint}>
-            {streak > 0 ? 'Так держать, не прерывайте серию!' : 'Потренируйтесь сегодня, чтобы начать серию'}
+            {streak > 0 ? t('stats.streakHintActive') : t('stats.streakHintInactive')}
           </div>
         </div>
       </div>
 
       <div className={styles.chartBlock}>
-        <h2 className={styles.chartTitle}>Активность за 14 дней</h2>
+        <h2 className={styles.chartTitle}>{t('stats.activityTitle')}</h2>
         <div className={styles.chart}>
           {activity.map((day) => (
             <div key={day.date} className={styles.barCol} title={`${day.date}: ${day.count}`}>
@@ -70,12 +73,4 @@ function StatCard({ label, value, accent }) {
       <div className={styles.label}>{label}</div>
     </div>
   )
-}
-
-function daysLabel(count) {
-  const mod10 = count % 10
-  const mod100 = count % 100
-  if (mod10 === 1 && mod100 !== 11) return 'день'
-  if ([2, 3, 4].includes(mod10) && ![12, 13, 14].includes(mod100)) return 'дня'
-  return 'дней'
 }

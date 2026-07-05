@@ -1,17 +1,19 @@
 // Карточка тренировки с анимацией переворота (CSS 3D flip).
 // Что показывать спереди/сзади решает вызывающий компонент — это позволяет
 // использовать один и тот же компонент и для прямой, и для обратной тренировки
+import { useAppData } from '../context/AppDataContext'
 import { isPhotoImage } from '../storage/imageUtils'
 import styles from './Flashcard.module.css'
 
 export function Flashcard({ frontText, backText, example, image, isFlipped, onFlip }) {
+  const { t } = useAppData()
   return (
     <div
       className={styles.outer}
       onClick={() => !isFlipped && onFlip()}
       role="button"
       tabIndex={0}
-      aria-label="Перевернуть карточку"
+      aria-label="Flip card"
     >
       <div className={`${styles.inner} ${isFlipped ? styles.flipped : ''}`}>
         <div className={`${styles.face} ${styles.front}`}>
@@ -22,7 +24,7 @@ export function Flashcard({ frontText, backText, example, image, isFlipped, onFl
               <span className={styles.cardImageEmoji}>{image}</span>
             ))}
           <span className={styles.word}>{frontText}</span>
-          <span className={styles.hint}>нажмите, чтобы перевернуть</span>
+          <span className={styles.hint}>{t('flashcard.hint')}</span>
         </div>
         <div className={`${styles.face} ${styles.back}`}>
           <span className={styles.translation}>{backText}</span>

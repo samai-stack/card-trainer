@@ -7,7 +7,7 @@ import styles from './DailyGoalWidget.module.css'
 const GOAL_PRESETS = [10, 20, 30, 50, 100]
 
 export function DailyGoalWidget() {
-  const { history, dailyGoal, setDailyGoal } = useAppData()
+  const { history, dailyGoal, setDailyGoal, t } = useAppData()
   const [isEditing, setIsEditing] = useState(false)
 
   const doneToday = history[todayStr()] || 0
@@ -17,7 +17,7 @@ export function DailyGoalWidget() {
 
   return (
     <div className={styles.widget}>
-      <div className={styles.streak} title="Дней подряд с тренировкой">
+      <div className={styles.streak} title={t('dailyGoal.streakTitle')}>
         <span className={styles.streakIcon}>🔥</span>
         <span className={styles.streakValue}>{streak}</span>
       </div>
@@ -25,7 +25,7 @@ export function DailyGoalWidget() {
       <div className={styles.goalBlock}>
         <div className={styles.goalHeader}>
           <span className={styles.goalLabel}>
-            Цель на день: {doneToday} / {dailyGoal} {isDone && '✅'}
+            {t('dailyGoal.label', { done: doneToday, goal: dailyGoal })} {isDone && '✅'}
           </span>
           {isEditing ? (
             <select
@@ -40,13 +40,13 @@ export function DailyGoalWidget() {
             >
               {GOAL_PRESETS.map((n) => (
                 <option key={n} value={n}>
-                  {n} слов
+                  {t('dailyGoal.wordsOption', { n })}
                 </option>
               ))}
             </select>
           ) : (
             <button type="button" className={styles.editBtn} onClick={() => setIsEditing(true)}>
-              Изменить
+              {t('dailyGoal.change')}
             </button>
           )}
         </div>

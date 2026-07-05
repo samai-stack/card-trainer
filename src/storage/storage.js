@@ -1,5 +1,6 @@
 // Чтение и запись всех данных приложения в localStorage под одним ключом
 import { createDefaultAppData } from './defaultData'
+import { LANGUAGES, DEFAULT_LANGUAGE } from '../i18n/translations'
 
 const STORAGE_KEY = 'flashcards-app-data-v1'
 
@@ -22,6 +23,7 @@ export function loadAppData() {
       theme: parsed.theme === 'light' ? 'light' : 'dark',
       history: parsed.history && typeof parsed.history === 'object' ? parsed.history : {},
       dailyGoal: Number.isInteger(parsed.dailyGoal) && parsed.dailyGoal > 0 ? parsed.dailyGoal : 20,
+      language: LANGUAGES.includes(parsed.language) ? parsed.language : DEFAULT_LANGUAGE,
       reminder: {
         enabled: reminder.enabled === true,
         time: typeof reminder.time === 'string' && /^\d{2}:\d{2}$/.test(reminder.time) ? reminder.time : '19:00',

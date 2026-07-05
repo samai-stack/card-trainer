@@ -2,7 +2,7 @@
 import { useRef, useState } from 'react'
 import { ProgressDots } from './ProgressDots'
 import { describeNextReview } from '../storage/leitner'
-import { resizeImageFile } from '../storage/imageUtils'
+import { resizeImageFile, isPhotoImage } from '../storage/imageUtils'
 import styles from './WordRow.module.css'
 
 export function WordRow({ card, onSave, onDelete, checkDuplicate }) {
@@ -92,7 +92,11 @@ export function WordRow({ card, onSave, onDelete, checkDuplicate }) {
         <div className={styles.imageEditRow}>
           {draft.image ? (
             <div className={styles.imagePreviewWrap}>
-              <img src={draft.image} alt="" className={styles.imagePreview} />
+              {isPhotoImage(draft.image) ? (
+                <img src={draft.image} alt="" className={styles.imagePreview} />
+              ) : (
+                <span className={styles.imagePreviewEmoji}>{draft.image}</span>
+              )}
               <button type="button" className={styles.removeImageBtn} onClick={clearDraftImage}>
                 ✕
               </button>
@@ -128,7 +132,11 @@ export function WordRow({ card, onSave, onDelete, checkDuplicate }) {
     <div className={styles.row}>
       <div className={styles.main}>
         {card.image ? (
-          <img src={card.image} alt="" className={styles.thumb} />
+          isPhotoImage(card.image) ? (
+            <img src={card.image} alt="" className={styles.thumb} />
+          ) : (
+            <span className={styles.thumbEmoji}>{card.image}</span>
+          )
         ) : (
           <div className={styles.thumbPlaceholder} />
         )}

@@ -6,6 +6,8 @@ import { WordForm } from '../components/WordForm'
 import { WordRow } from '../components/WordRow'
 import { ConfirmDialog } from '../components/ConfirmDialog'
 import { countDueToday } from '../storage/leitner'
+import { lookupEmoji } from '../storage/emojiDictionary'
+import { resizeImageFile, filenameToWordKey } from '../storage/imageUtils'
 import styles from './DeckPage.module.css'
 
 export function DeckPage() {
@@ -18,8 +20,59 @@ export function DeckPage() {
   const [direction, setDirection] = useState('forward')
   // Способ ответа: переворот карточки или ввод слова с клавиатуры
   const [answerMode, setAnswerMode] = useState('flip')
+  const [imagesMessage, setImagesMessage] = useState('')
 
   const deck = decks.find((d) => d.id === deckId)
+
+  function handleAutoFillEmoji() {
+    if (!deck) return
+    let filled = 0
+    let candidates = 0
+    for (const card of deck.cards) {
+      if (card.image) continue
+      candidates += 1
+      const emoji = lookupEmoji(card.word)
+      if (emoji) {
+        updateCard(deck.id, card.id, { image: emoji })
+        filled += 1
+      }
+    }
+    setImagesMessage(
+      candidates === 0
+        ? 'У всех слов уже есть картинка'
+        : `Готово: эмодзи найдены для ${filled} из ${candidates} слов без картинки`
+    )
+  }
+
+  async function handleBulkFileUpload(e) {
+    if (!deck) return
+    const files = Array.from(e.target.files || [])
+    e.target.value = '' // чтобы можно было выбрать те же файлы повторно
+
+    let matched = 0
+    const unmatched = []
+
+    for (const file of files) {
+      const key = filenameToWordKey(file.name)
+      const card = deck.cards.find((c) => c.word.trim().toLowerCase() === key)
+      if (!card) {
+        unmatched.push(file.name)
+        continue
+      }
+      try {
+        const dataUrl = await resizeImageFile(file)
+        updateCard(deck.id, card.id, { image: dataUrl })
+        matched += 1
+      } catch {
+        unmatched.push(file.name)
+      }
+    }
+
+    const summary = `Загружено ${matched} из ${files.length}`
+    setImagesMessage(
+      unmatched.length > 0 ? `${summary}. Не найдено слов для: ${unmatched.join(', ')}` : summary
+    )
+  }
 
   const filteredCards = useMemo(() => {
     if (!deck) return []
@@ -117,6 +170,25 @@ export function DeckPage() {
         onAdd={(fields) => addCard(deck.id, fields)}
         checkDuplicate={(word) => findDuplicate(deck.id, word)}
       />
+
+      {deck.cards.length > 0 && (
+        <div className={styles.imagesTools}>
+          <button type="button" className="btn" onClick={handleAutoFillEmoji}>
+            🎲 Заполнить эмодзи автоматически
+          </button>
+          <label className={`btn ${styles.bulkFileLabel}`}>
+            📁 Загрузить картинки пачкой
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleBulkFileUpload}
+              className={styles.bulkFileInput}
+            />
+          </label>
+          {imagesMessage && <p className={styles.imagesMessage}>{imagesMessage}</p>}
+        </div>
+      )}
 
       <input
         className="text-input"

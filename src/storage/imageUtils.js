@@ -28,3 +28,19 @@ export function resizeImageFile(file) {
     reader.readAsDataURL(file)
   })
 }
+
+// Поле "image" карточки может быть либо загруженным фото (data URL), либо эмодзи-строкой.
+// Эта функция отличает одно от другого для правильного рендеринга
+export function isPhotoImage(value) {
+  return typeof value === 'string' && value.startsWith('data:')
+}
+
+// Убрать расширение файла и привести к виду для сравнения со словом карточки:
+// "Thank_You.jpg" -> "thank you"
+export function filenameToWordKey(filename) {
+  return filename
+    .replace(/\.[^./]+$/, '')
+    .replace(/[_-]+/g, ' ')
+    .trim()
+    .toLowerCase()
+}

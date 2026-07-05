@@ -3,6 +3,7 @@
 // Компонент нужно монтировать заново на каждую карточку (передавать key={card.id} снаружи) —
 // тогда внутреннее состояние (введённый текст, фаза) само сбрасывается для нового слова
 import { useState } from 'react'
+import { isPhotoImage } from '../storage/imageUtils'
 import styles from './TypingCard.module.css'
 
 function normalize(str) {
@@ -35,7 +36,12 @@ export function TypingCard({ prompt, answer, example, image, onResult }) {
 
   return (
     <div className={styles.wrapper}>
-      {image && <img src={image} alt="" className={styles.cardImage} />}
+      {image &&
+        (isPhotoImage(image) ? (
+          <img src={image} alt="" className={styles.cardImage} />
+        ) : (
+          <span className={styles.cardImageEmoji}>{image}</span>
+        ))}
       <div className={styles.prompt}>{prompt}</div>
 
       <div className={styles.letters} aria-hidden="true">

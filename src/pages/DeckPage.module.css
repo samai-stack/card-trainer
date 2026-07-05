@@ -55,6 +55,30 @@
   color: var(--color-accent-text);
 }
 
+.imagesTools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.bulkFileLabel {
+  position: relative;
+}
+
+.bulkFileInput {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.imagesMessage {
+  width: 100%;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+
 .list {
   display: flex;
   flex-direction: column;

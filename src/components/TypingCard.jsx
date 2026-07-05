@@ -9,7 +9,7 @@ function normalize(str) {
   return str.trim().toLowerCase()
 }
 
-export function TypingCard({ prompt, answer, example, onResult }) {
+export function TypingCard({ prompt, answer, example, image, onResult }) {
   const [value, setValue] = useState('')
   const [phase, setPhase] = useState('typing') // 'typing' — вводим, 'result' — показан результат
   const [wasCorrect, setWasCorrect] = useState(false)
@@ -35,6 +35,7 @@ export function TypingCard({ prompt, answer, example, onResult }) {
 
   return (
     <div className={styles.wrapper}>
+      {image && <img src={image} alt="" className={styles.cardImage} />}
       <div className={styles.prompt}>{prompt}</div>
 
       <div className={styles.letters} aria-hidden="true">

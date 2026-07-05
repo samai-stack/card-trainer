@@ -38,6 +38,13 @@
   transform: rotateY(180deg);
 }
 
+.cardImage {
+  max-width: 55%;
+  max-height: 45%;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+}
+
 .word {
   font-size: clamp(28px, 6vw, 42px);
   font-weight: 700;

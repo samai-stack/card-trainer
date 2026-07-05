@@ -1,7 +1,8 @@
 // Одна строка списка слов: просмотр или редактирование
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { ProgressDots } from './ProgressDots'
 import { describeNextReview } from '../storage/leitner'
+import { resizeImageFile } from '../storage/imageUtils'
 import styles from './WordRow.module.css'
 
 export function WordRow({ card, onSave, onDelete, checkDuplicate }) {
@@ -10,13 +11,36 @@ export function WordRow({ card, onSave, onDelete, checkDuplicate }) {
     word: card.word,
     translation: card.translation,
     example: card.example,
+    image: card.image || '',
   })
   const [warning, setWarning] = useState('')
+  const fileInputRef = useRef(null)
 
   function startEdit() {
-    setDraft({ word: card.word, translation: card.translation, example: card.example })
+    setDraft({
+      word: card.word,
+      translation: card.translation,
+      example: card.example,
+      image: card.image || '',
+    })
     setWarning('')
     setIsEditing(true)
+  }
+
+  async function handleImageChange(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      const dataUrl = await resizeImageFile(file)
+      setDraft((d) => ({ ...d, image: dataUrl }))
+    } catch {
+      setWarning('Не удалось загрузить картинку')
+    }
+  }
+
+  function clearDraftImage() {
+    setDraft((d) => ({ ...d, image: '' }))
+    if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
   function handleSave() {
@@ -31,7 +55,12 @@ export function WordRow({ card, onSave, onDelete, checkDuplicate }) {
       setWarning(`Слово «${duplicate.word}» уже есть в этой колоде`)
       return
     }
-    onSave({ word: wordTrimmed, translation: translationTrimmed, example: draft.example.trim() })
+    onSave({
+      word: wordTrimmed,
+      translation: translationTrimmed,
+      example: draft.example.trim(),
+      image: draft.image,
+    })
     setIsEditing(false)
   }
 
@@ -59,6 +88,29 @@ export function WordRow({ card, onSave, onDelete, checkDuplicate }) {
             placeholder="Пример (необязательно)"
           />
         </div>
+
+        <div className={styles.imageEditRow}>
+          {draft.image ? (
+            <div className={styles.imagePreviewWrap}>
+              <img src={draft.image} alt="" className={styles.imagePreview} />
+              <button type="button" className={styles.removeImageBtn} onClick={clearDraftImage}>
+                ✕
+              </button>
+            </div>
+          ) : (
+            <label className={styles.imagePickBtn}>
+              🖼️ Картинка
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className={styles.fileInput}
+              />
+            </label>
+          )}
+        </div>
+
         {warning && <p className={styles.warning}>{warning}</p>}
         <div className={styles.editActions}>
           <button type="button" className="btn" onClick={() => setIsEditing(false)}>
@@ -75,6 +127,11 @@ export function WordRow({ card, onSave, onDelete, checkDuplicate }) {
   return (
     <div className={styles.row}>
       <div className={styles.main}>
+        {card.image ? (
+          <img src={card.image} alt="" className={styles.thumb} />
+        ) : (
+          <div className={styles.thumbPlaceholder} />
+        )}
         <div className={styles.wordCol}>
           <span className={styles.word}>{card.word}</span>
           <span className={styles.translation}>{card.translation}</span>

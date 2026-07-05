@@ -222,6 +222,7 @@ export function TrainingPage() {
             prompt={isReverse ? currentCard.translation : currentCard.word}
             answer={isReverse ? currentCard.word : currentCard.translation}
             example={currentCard.example}
+            image={currentCard.image}
             onResult={handleTypingResult}
           />
         ) : (
@@ -229,6 +230,7 @@ export function TrainingPage() {
             frontText={isReverse ? currentCard.translation : currentCard.word}
             backText={isReverse ? currentCard.word : currentCard.translation}
             example={currentCard.example}
+            image={currentCard.image}
             isFlipped={isFlipped}
             onFlip={() => !isTransitioning && setIsFlipped(true)}
           />

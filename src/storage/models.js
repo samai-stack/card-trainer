@@ -11,13 +11,14 @@ function generateId() {
   return `id-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
 }
 
-export function createCard({ word, translation, example = '' }) {
+export function createCard({ word, translation, example = '', image = '' }) {
   const today = todayStr()
   return {
     id: generateId(),
     word: word.trim(),
     translation: translation.trim(),
     example: example.trim(),
+    image, // сжатая картинка-подсказка в виде data URL (необязательно)
     addedAt: today,
     box: 1, // уровень знания от 1 до 5
     nextReview: today, // новое слово сразу доступно к изучению

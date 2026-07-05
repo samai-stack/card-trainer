@@ -7,9 +7,24 @@
 
 .main {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: auto 1fr auto auto;
   align-items: center;
   gap: 16px;
+}
+
+.thumb {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.thumbPlaceholder {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
 }
 
 .wordCol {
@@ -90,12 +105,76 @@
   margin-top: 8px;
 }
 
+.imageEditRow {
+  margin-top: 10px;
+}
+
+.imagePickBtn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 8px 14px;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.imagePickBtn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.fileInput {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.imagePreviewWrap {
+  position: relative;
+  width: 64px;
+  height: 64px;
+}
+
+.imagePreview {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.removeImageBtn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-danger);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 @media (max-width: 640px) {
   .main {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: auto 1fr auto;
     grid-template-areas:
-      'word actions'
-      'meta meta';
+      'thumb word actions'
+      'meta meta meta';
+  }
+  .thumb,
+  .thumbPlaceholder {
+    grid-area: thumb;
   }
   .wordCol {
     grid-area: word;

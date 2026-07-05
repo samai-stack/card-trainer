@@ -49,9 +49,13 @@ export function TrainingPage() {
   const { decks, answerCard, t } = useAppData()
   const deck = decks.find((d) => d.id === deckId)
   // Направление и способ ответа задаются ссылкой со страницы колоды:
-  // ?dir=reverse — перевод → слово, ?mode=type — ввод с клавиатуры вместо переворота карточки
+  // ?dir=reverse — перевод → слово, ?mode=type — ввод с клавиатуры вместо переворота карточки,
+  // ?mode=listen — аудирование (слово озвучивается через Web Speech API вместо показа текста),
+  // ?listen=dictation — в режиме аудирования печатать услышанное слово, а не перевод
   const isReverse = searchParams.get('dir') === 'reverse'
   const isTyping = searchParams.get('mode') === 'type'
+  const isListening = searchParams.get('mode') === 'listen'
+  const isDictation = searchParams.get('listen') === 'dictation'
 
   const [session, setSession] = useState(() => (deck ? buildSessionQueue(deck.cards) : EMPTY_SESSION))
   const [isFlipped, setIsFlipped] = useState(false)
@@ -130,7 +134,7 @@ export function TrainingPage() {
   // 3 — «хорошо», 4 — «легко». В режиме ввода с клавиатуры они не нужны — там управление
   // через Enter внутри поля ввода
   useEffect(() => {
-    if (isTyping) return
+    if (isTyping || isListening) return
     function onKeyDown(e) {
       if (!currentCard || isTransitioning) return
       if (e.code === 'Space') {
@@ -148,7 +152,7 @@ export function TrainingPage() {
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [currentCard, isFlipped, isTransitioning, handleAnswer, isTyping])
+  }, [currentCard, isFlipped, isTransitioning, handleAnswer, isTyping, isListening])
 
   if (!deck) {
     return (
@@ -214,8 +218,9 @@ export function TrainingPage() {
           </div>
         </div>
         <span className={styles.modeBadge}>
-          {isReverse ? t('deck.directionReverse') : t('deck.directionForward')}
+          {isListening ? t('deck.answerModeListen') : isReverse ? t('deck.directionReverse') : t('deck.directionForward')}
           {isTyping ? t('training.directionSuffix') : ''}
+          {isListening ? t(isDictation ? 'training.listenSuffixDictation' : 'training.listenSuffixTranslate') : ''}
         </span>
         {session.isFreePractice && (
           <span className={styles.modeBadge} title={t('training.freePracticeHint')}>
@@ -228,7 +233,17 @@ export function TrainingPage() {
       </div>
 
       <div className={styles.cardArea}>
-        {isTyping ? (
+        {isListening ? (
+          <TypingCard
+            key={currentCard.id}
+            audioText={currentCard.word}
+            answer={isDictation ? currentCard.word : currentCard.translation}
+            example={currentCard.example}
+            image={currentCard.image}
+            placeholder={t(isDictation ? 'listening.placeholderDictation' : 'listening.placeholderTranslate')}
+            onResult={handleTypingResult}
+          />
+        ) : isTyping ? (
           <TypingCard
             key={currentCard.id}
             prompt={isReverse ? currentCard.translation : currentCard.word}
@@ -249,7 +264,7 @@ export function TrainingPage() {
         )}
       </div>
 
-      {!isTyping && (
+      {!isTyping && !isListening && (
         <div className={styles.answerArea}>
           {!isFlipped ? (
             <p className={styles.hintText}>{t('training.flipHint')}</p>

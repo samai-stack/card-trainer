@@ -56,6 +56,10 @@ const ru = {
   'deck.answerModeLabel': 'Способ ответа',
   'deck.answerModeFlip': 'Карточки',
   'deck.answerModeType': 'Ввод с клавиатуры',
+  'deck.answerModeListen': '🎧 Аудирование',
+  'deck.listenModeLabel': 'Что печатать',
+  'deck.listenModeTranslate': 'Перевод',
+  'deck.listenModeDictation': 'Слово на слух',
   'deck.startTraining': 'Начать тренировку',
   'deck.autoFillEmoji': '🎲 Заполнить эмодзи автоматически',
   'deck.bulkUpload': '📁 Загрузить картинки пачкой',
@@ -99,6 +103,8 @@ const ru = {
   'training.easy': 'Легко',
   'training.restart': 'Ещё раз',
   'training.directionSuffix': ' · ввод',
+  'training.listenSuffixTranslate': ' · аудирование: перевод',
+  'training.listenSuffixDictation': ' · аудирование: слово на слух',
   'training.freePractice': '🔁 Свободная тренировка',
   'training.freePracticeHint':
     'Сегодня по расписанию повторять нечего — тренируемся всеми словами колоды',
@@ -115,6 +121,13 @@ const ru = {
   'typing.correct': '✅ Верно!',
   'typing.wrongAnswer': 'Правильный ответ: «{{answer}}»',
   'typing.next': 'Далее',
+
+  // Аудирование (озвучка через Web Speech API)
+  'listening.replay': 'Слушать снова',
+  'listening.unsupported': 'Озвучка не поддерживается этим браузером — слово показано текстом',
+  'listening.heardWord': 'Вы слышали слово: «{{word}}»',
+  'listening.placeholderTranslate': 'Введите перевод…',
+  'listening.placeholderDictation': 'Введите услышанное слово…',
 
   // Статистика
   'stats.title': 'Статистика',
@@ -221,6 +234,10 @@ const en = {
   'deck.answerModeLabel': 'Answer method',
   'deck.answerModeFlip': 'Flashcards',
   'deck.answerModeType': 'Typing',
+  'deck.answerModeListen': '🎧 Listening',
+  'deck.listenModeLabel': 'What to type',
+  'deck.listenModeTranslate': 'Translation',
+  'deck.listenModeDictation': 'Word you heard',
   'deck.startTraining': 'Start practice',
   'deck.autoFillEmoji': '🎲 Auto-fill emoji',
   'deck.bulkUpload': '📁 Bulk upload images',
@@ -261,6 +278,8 @@ const en = {
   'training.easy': 'Easy',
   'training.restart': 'Train again',
   'training.directionSuffix': ' · typing',
+  'training.listenSuffixTranslate': ' · listening: translation',
+  'training.listenSuffixDictation': ' · listening: word you heard',
   'training.freePractice': '🔁 Free practice',
   'training.freePracticeHint':
     "Nothing scheduled for review today — practicing with all words in the deck",
@@ -275,6 +294,12 @@ const en = {
   'typing.correct': '✅ Correct!',
   'typing.wrongAnswer': 'Correct answer: "{{answer}}"',
   'typing.next': 'Next',
+
+  'listening.replay': 'Listen again',
+  'listening.unsupported': "This browser doesn't support speech synthesis — the word is shown as text instead",
+  'listening.heardWord': 'You heard the word: "{{word}}"',
+  'listening.placeholderTranslate': 'Type the translation…',
+  'listening.placeholderDictation': 'Type the word you heard…',
 
   'stats.title': 'Statistics',
   'stats.total': 'Total words',

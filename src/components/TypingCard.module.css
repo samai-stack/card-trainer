@@ -29,6 +29,43 @@
   font-weight: 700;
 }
 
+.audioPrompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.replayBtn {
+  border: 1px solid var(--color-accent);
+  background: transparent;
+  color: var(--color-accent);
+  border-radius: var(--radius-md);
+  padding: 14px 22px;
+  font-size: 17px;
+  font-weight: 700;
+  transition: transform 0.1s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.replayBtn:hover {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+}
+
+.replayBtn:active {
+  transform: scale(0.97);
+}
+
+.unsupported {
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+
+.heardWord {
+  color: var(--color-text-secondary);
+  font-size: 15px;
+}
+
 .letters {
   display: flex;
   flex-wrap: wrap;

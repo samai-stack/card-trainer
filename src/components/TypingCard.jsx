@@ -2,20 +2,30 @@
 // каждая буква сразу подсвечивается (верно/неверно) по сравнению с правильным словом.
 // Компонент нужно монтировать заново на каждую карточку (передавать key={card.id} снаружи) —
 // тогда внутреннее состояние (введённый текст, фаза) само сбрасывается для нового слова
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAppData } from '../context/AppDataContext'
 import { isPhotoImage } from '../storage/imageUtils'
+import { isSpeechSupported, speak } from '../storage/speech'
 import styles from './TypingCard.module.css'
 
 function normalize(str) {
   return str.trim().toLowerCase()
 }
 
-export function TypingCard({ prompt, answer, example, image, onResult }) {
+// audioText — если задан, карточка работает в режиме аудирования: вместо текста-подсказки
+// проигрывается озвучка этого текста (слово всегда произносится по-английски), а answer —
+// то, что нужно напечатать (перевод либо то же слово — для диктанта на слух)
+export function TypingCard({ prompt, audioText, answer, example, image, placeholder, onResult }) {
   const { t } = useAppData()
   const [value, setValue] = useState('')
   const [phase, setPhase] = useState('typing') // 'typing' — вводим, 'result' — показан результат
   const [wasCorrect, setWasCorrect] = useState(false)
+
+  // Проигрываем озвучку автоматически при появлении новой карточки (компонент
+  // монтируется заново на каждое слово благодаря key={card.id} у вызывающей стороны)
+  useEffect(() => {
+    if (audioText) speak(audioText)
+  }, [audioText])
 
   function handleCheck() {
     if (phase !== 'typing' || !value.trim()) return
@@ -38,13 +48,33 @@ export function TypingCard({ prompt, answer, example, image, onResult }) {
 
   return (
     <div className={styles.wrapper}>
+      {/* Картинку в режиме аудирования показываем только после ответа — до этого она была бы подсказкой */}
       {image &&
+        (phase === 'result' || !audioText) &&
         (isPhotoImage(image) ? (
           <img src={image} alt="" className={styles.cardImage} />
         ) : (
           <span className={styles.cardImageEmoji}>{image}</span>
         ))}
-      <div className={styles.prompt}>{prompt}</div>
+
+      {audioText ? (
+        <div className={styles.audioPrompt}>
+          {isSpeechSupported ? (
+            <button type="button" className={styles.replayBtn} onClick={() => speak(audioText)}>
+              🔊 {t('listening.replay')}
+            </button>
+          ) : (
+            // Озвучка не поддерживается браузером — честно показываем слово текстом,
+            // чтобы упражнение всё равно можно было пройти
+            <>
+              <div className={styles.prompt}>{audioText}</div>
+              <p className={styles.unsupported}>{t('listening.unsupported')}</p>
+            </>
+          )}
+        </div>
+      ) : (
+        <div className={styles.prompt}>{prompt}</div>
+      )}
 
       <div className={styles.letters} aria-hidden="true">
         {answer.split('').map((ch, i) => {
@@ -75,7 +105,7 @@ export function TypingCard({ prompt, answer, example, image, onResult }) {
             value={value}
             onChange={(e) => setValue(e.target.value)}
             onKeyDown={handleInputKeyDown}
-            placeholder={t('typing.placeholder')}
+            placeholder={placeholder || t('typing.placeholder')}
             autoComplete="off"
             autoCapitalize="off"
             spellCheck="false"
@@ -99,6 +129,9 @@ export function TypingCard({ prompt, answer, example, image, onResult }) {
           <div className={wasCorrect ? styles.resultCorrect : styles.resultWrong}>
             {wasCorrect ? t('typing.correct') : t('typing.wrongAnswer', { answer })}
           </div>
+          {audioText && audioText !== answer && (
+            <div className={styles.heardWord}>{t('listening.heardWord', { word: audioText })}</div>
+          )}
           {example && <div className={styles.example}>«{example}»</div>}
           <button
             type="button"

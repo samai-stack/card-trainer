@@ -19,8 +19,10 @@ export function DeckPage() {
   const [cardToDelete, setCardToDelete] = useState(null)
   // Направление тренировки: обычное (слово → перевод) или обратное (перевод → слово)
   const [direction, setDirection] = useState('forward')
-  // Способ ответа: переворот карточки или ввод слова с клавиатуры
+  // Способ ответа: переворот карточки, ввод слова с клавиатуры или аудирование (озвучка)
   const [answerMode, setAnswerMode] = useState('flip')
+  // Для режима аудирования: печатать перевод услышанного слова или само слово (диктант на слух)
+  const [listenMode, setListenMode] = useState('translate')
   const [imagesMessage, setImagesMessage] = useState('')
 
   const deck = decks.find((d) => d.id === deckId)
@@ -113,26 +115,29 @@ export function DeckPage() {
           })}
         </p>
 
-        <div className={styles.directionSwitch} role="radiogroup" aria-label={t('deck.directionLabel')}>
-          <button
-            type="button"
-            role="radio"
-            aria-checked={direction === 'forward'}
-            className={direction === 'forward' ? styles.directionActive : styles.directionOption}
-            onClick={() => setDirection('forward')}
-          >
-            {t('deck.directionForward')}
-          </button>
-          <button
-            type="button"
-            role="radio"
-            aria-checked={direction === 'reverse'}
-            className={direction === 'reverse' ? styles.directionActive : styles.directionOption}
-            onClick={() => setDirection('reverse')}
-          >
-            {t('deck.directionReverse')}
-          </button>
-        </div>
+        {/* Направление не применимо к аудированию — там его роль играет переключатель ниже */}
+        {answerMode !== 'listen' && (
+          <div className={styles.directionSwitch} role="radiogroup" aria-label={t('deck.directionLabel')}>
+            <button
+              type="button"
+              role="radio"
+              aria-checked={direction === 'forward'}
+              className={direction === 'forward' ? styles.directionActive : styles.directionOption}
+              onClick={() => setDirection('forward')}
+            >
+              {t('deck.directionForward')}
+            </button>
+            <button
+              type="button"
+              role="radio"
+              aria-checked={direction === 'reverse'}
+              className={direction === 'reverse' ? styles.directionActive : styles.directionOption}
+              onClick={() => setDirection('reverse')}
+            >
+              {t('deck.directionReverse')}
+            </button>
+          </div>
+        )}
 
         <div className={styles.directionSwitch} role="radiogroup" aria-label={t('deck.answerModeLabel')}>
           <button
@@ -153,7 +158,39 @@ export function DeckPage() {
           >
             {t('deck.answerModeType')}
           </button>
+          <button
+            type="button"
+            role="radio"
+            aria-checked={answerMode === 'listen'}
+            className={answerMode === 'listen' ? styles.directionActive : styles.directionOption}
+            onClick={() => setAnswerMode('listen')}
+          >
+            {t('deck.answerModeListen')}
+          </button>
         </div>
+
+        {answerMode === 'listen' && (
+          <div className={styles.directionSwitch} role="radiogroup" aria-label={t('deck.listenModeLabel')}>
+            <button
+              type="button"
+              role="radio"
+              aria-checked={listenMode === 'translate'}
+              className={listenMode === 'translate' ? styles.directionActive : styles.directionOption}
+              onClick={() => setListenMode('translate')}
+            >
+              {t('deck.listenModeTranslate')}
+            </button>
+            <button
+              type="button"
+              role="radio"
+              aria-checked={listenMode === 'dictation'}
+              className={listenMode === 'dictation' ? styles.directionActive : styles.directionOption}
+              onClick={() => setListenMode('dictation')}
+            >
+              {t('deck.listenModeDictation')}
+            </button>
+          </div>
+        )}
 
         <button
           type="button"
@@ -161,8 +198,13 @@ export function DeckPage() {
           disabled={deck.cards.length === 0}
           onClick={() => {
             const params = new URLSearchParams()
-            if (direction === 'reverse') params.set('dir', 'reverse')
-            if (answerMode === 'type') params.set('mode', 'type')
+            if (answerMode === 'listen') {
+              params.set('mode', 'listen')
+              if (listenMode === 'dictation') params.set('listen', 'dictation')
+            } else {
+              if (direction === 'reverse') params.set('dir', 'reverse')
+              if (answerMode === 'type') params.set('mode', 'type')
+            }
             const query = params.toString()
             navigate(`/deck/${deck.id}/train${query ? `?${query}` : ''}`)
           }}

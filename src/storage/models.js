@@ -1,5 +1,5 @@
 // Фабрики для создания карточки и колоды с правильной структурой по умолчанию
-import { todayStr } from './leitner'
+import { todayStr, nowIso } from './leitner'
 
 // Генерация уникального id.
 // crypto.randomUUID доступен только в «безопасном контексте» (localhost или HTTPS) —
@@ -12,16 +12,15 @@ function generateId() {
 }
 
 export function createCard({ word, translation, example = '', image = '' }) {
-  const today = todayStr()
   return {
     id: generateId(),
     word: word.trim(),
     translation: translation.trim(),
     example: example.trim(),
     image, // сжатая картинка-подсказка в виде data URL (необязательно)
-    addedAt: today,
+    addedAt: todayStr(),
     box: 1, // уровень знания от 1 до 5
-    nextReview: today, // новое слово сразу доступно к изучению
+    nextReview: nowIso(), // новое слово сразу доступно к изучению
     correctCount: 0,
     wrongCount: 0,
   }

@@ -1,21 +1,28 @@
-// Логика упрощённой системы Лейтнера: интервалы повторения и работа с датами
+// Логика интервальных повторений: 4 варианта ответа с фиксированными интервалами
+// («Ещё раз» / «Трудно» / «Хорошо» / «Легко»), похоже на Anki
 
-// Через сколько дней повторять слово в зависимости от уровня знания (box 1..5)
-export const REVIEW_INTERVALS_DAYS = {
-  1: 1,
-  2: 2,
-  3: 4,
-  4: 9,
-  5: 21,
+// Через сколько времени показать слово снова в зависимости от ответа.
+// "again" измеряется в минутах, остальные — в днях
+const REVIEW_INTERVALS = {
+  again: { minutes: 10 },
+  hard: { days: 2 },
+  good: { days: 45 }, // ~1.5 месяца
+  easy: { days: 90 }, // ~3 месяца
 }
+
+// Уровень «знания» слова (1-5) — используется только для статистики и точек-индикаторов,
+// на расписание повторений не влияет (оно всегда идёт по фиксированным интервалам выше)
+const OUTCOME_BOX = { again: 1, hard: 2, good: 4, easy: 5 }
+
+export const ANSWER_OUTCOMES = ['again', 'hard', 'good', 'easy']
 
 // Максимум новых слов, которые добавляются в одну тренировочную сессию
 export const MAX_NEW_CARDS_PER_SESSION = 20
 
-// Сегодняшняя дата в формате YYYY-MM-DD (без времени, чтобы сравнивать даты просто как строки)
+// Сегодняшняя дата в формате YYYY-MM-DD (без времени) — используется для стрика
+// и графика активности, где важен именно календарный день, а не точное время
 export function todayStr() {
-  const d = new Date()
-  return dateToStr(d)
+  return dateToStr(new Date())
 }
 
 export function dateToStr(date) {
@@ -33,9 +40,23 @@ export function addDays(dateStr, days) {
   return dateToStr(date)
 }
 
-// Слово считается нужным для повторения, если дата следующего повторения уже наступила
-export function isDue(card, today = todayStr()) {
-  return card.nextReview <= today
+// Точный текущий момент в ISO-формате — нужен для расписания повторений,
+// т.к. интервал «Ещё раз» измеряется в минутах, а не днях
+export function nowIso() {
+  return new Date().toISOString()
+}
+
+function applyInterval(outcome, fromIso) {
+  const date = new Date(fromIso)
+  const interval = REVIEW_INTERVALS[outcome]
+  if (interval.minutes) date.setMinutes(date.getMinutes() + interval.minutes)
+  if (interval.days) date.setDate(date.getDate() + interval.days)
+  return date.toISOString()
+}
+
+// Слово считается нужным для повторения, если момент следующего повторения уже наступил
+export function isDue(card, nowIsoValue = nowIso()) {
+  return card.nextReview <= nowIsoValue
 }
 
 // Слово считается новым, если по нему ещё не было ни одного ответа
@@ -44,46 +65,39 @@ export function isNewCard(card) {
 }
 
 // Применить ответ пользователя к карточке и вернуть обновлённую карточку.
-// isCorrect: true — «Знаю», false — «Не знаю»
-export function applyAnswer(card, isCorrect, today = todayStr()) {
-  if (isCorrect) {
-    const newBox = Math.min(5, card.box + 1)
-    return {
-      ...card,
-      box: newBox,
-      nextReview: addDays(today, REVIEW_INTERVALS_DAYS[newBox]),
-      correctCount: card.correctCount + 1,
-    }
-  }
-
+// outcome: 'again' | 'hard' | 'good' | 'easy'
+export function applyAnswer(card, outcome, fromIso = nowIso()) {
+  const isPositive = outcome !== 'again'
   return {
     ...card,
-    box: 1,
-    nextReview: today, // слово нужно повторить снова уже сегодня
-    wrongCount: card.wrongCount + 1,
+    box: OUTCOME_BOX[outcome] ?? 1,
+    nextReview: applyInterval(outcome, fromIso),
+    correctCount: isPositive ? card.correctCount + 1 : card.correctCount,
+    wrongCount: isPositive ? card.wrongCount : card.wrongCount + 1,
   }
 }
 
-// Посчитать, сколько слов колоды ждут повторения сегодня (для плитки колоды на главной)
-export function countDueToday(cards, today = todayStr()) {
-  return cards.filter((card) => isDue(card, today)).length
+// Посчитать, сколько слов колоды ждут повторения прямо сейчас (для плитки колоды на главной)
+export function countDueToday(cards, nowIsoValue = nowIso()) {
+  return cards.filter((card) => isDue(card, nowIsoValue)).length
 }
 
-// Сколько дней осталось до даты повторения (может быть отрицательным, если просрочено)
-export function daysUntil(dateStr, today = todayStr()) {
-  const [y1, m1, d1] = today.split('-').map(Number)
-  const [y2, m2, d2] = dateStr.split('-').map(Number)
-  const msPerDay = 24 * 60 * 60 * 1000
-  const diff = Date.UTC(y2, m2 - 1, d2) - Date.UTC(y1, m1 - 1, d1)
-  return Math.round(diff / msPerDay)
-}
+// Человеко-понятное описание момента следующего повторения
+export function describeNextReview(iso, nowIsoValue = nowIso()) {
+  const diffMs = new Date(iso).getTime() - new Date(nowIsoValue).getTime()
+  if (diffMs <= 0) return 'сейчас'
 
-// Человеко-понятное описание даты следующего повторения
-export function describeNextReview(dateStr, today = todayStr()) {
-  const diff = daysUntil(dateStr, today)
-  if (diff <= 0) return 'сегодня'
-  if (diff === 1) return 'завтра'
-  return `через ${diff} дн.`
+  const diffMinutes = diffMs / (1000 * 60)
+  if (diffMinutes < 60) return `через ${Math.round(diffMinutes)} мин.`
+
+  const diffHours = diffMinutes / 60
+  if (diffHours < 24) return `через ${Math.round(diffHours)} ч.`
+
+  const diffDays = diffHours / 24
+  if (diffDays < 30) return `через ${Math.round(diffDays)} дн.`
+
+  const diffMonths = diffDays / 30
+  return `через ${Math.round(diffMonths)} мес.`
 }
 
 // Стрик: сколько дней подряд были тренировки (по объекту history { 'YYYY-MM-DD': count })

@@ -1,10 +1,11 @@
-// Режим тренировки: показ карточек, переворот, ответы «Знаю» / «Не знаю»
+// Режим тренировки: показ карточек, переворот, 4 варианта ответа (как в Anki):
+// «Ещё раз» / «Трудно» / «Хорошо» / «Легко»
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useAppData } from '../context/AppDataContext'
 import { Flashcard } from '../components/Flashcard'
 import { TypingCard } from '../components/TypingCard'
-import { isDue, isNewCard, MAX_NEW_CARDS_PER_SESSION, todayStr } from '../storage/leitner'
+import { isDue, isNewCard, MAX_NEW_CARDS_PER_SESSION } from '../storage/leitner'
 import styles from './TrainingPage.module.css'
 
 // Перемешать массив (алгоритм Фишера-Йейтса), не трогая исходный массив
@@ -21,8 +22,7 @@ function shuffle(array) {
 // Если по расписанию повторять нечего, но в колоде есть слова — даём потренироваться
 // свободно всеми словами колоды, чтобы можно было начать тренировку в любой момент
 function buildSessionQueue(cards) {
-  const today = todayStr()
-  const due = cards.filter((c) => isDue(c, today) && !isNewCard(c))
+  const due = cards.filter((c) => isDue(c) && !isNewCard(c))
   const fresh = cards.filter((c) => isNewCard(c)).slice(0, MAX_NEW_CARDS_PER_SESSION)
   const scheduled = [...due, ...fresh]
   const isFreePractice = scheduled.length === 0 && cards.length > 0
@@ -36,6 +36,7 @@ function buildSessionQueue(cards) {
 }
 
 const EMPTY_SESSION = { cardsById: new Map(), queue: [], total: 0, isFreePractice: false }
+const EMPTY_STATS = { again: 0, hard: 0, good: 0, easy: 0 }
 
 // Должно быть чуть больше длительности CSS-анимации переворота в Flashcard.module.css (0.5s),
 // чтобы карточка успела визуально вернуться на «лицевую» сторону, прежде чем подставится новое слово
@@ -54,7 +55,7 @@ export function TrainingPage() {
 
   const [session, setSession] = useState(() => (deck ? buildSessionQueue(deck.cards) : EMPTY_SESSION))
   const [isFlipped, setIsFlipped] = useState(false)
-  const [stats, setStats] = useState({ correct: 0, wrong: 0 })
+  const [stats, setStats] = useState(EMPTY_STATS)
   const [completedIds, setCompletedIds] = useState(() => new Set())
   // Пока true — карточка ещё анимированно возвращается на лицевую сторону,
   // новое слово подставлять рано (иначе мелькнёт ответ следующей карточки)
@@ -68,12 +69,14 @@ export function TrainingPage() {
     return () => clearTimeout(transitionTimeoutRef.current)
   }, [])
 
+  // outcome: 'again' | 'hard' | 'good' | 'easy'
   const handleAnswer = useCallback(
-    (isCorrect) => {
+    (outcome) => {
       if (!currentCard || !deck || isTransitioning) return
-      answerCard(deck.id, currentCard.id, isCorrect)
-      setStats((s) => (isCorrect ? { ...s, correct: s.correct + 1 } : { ...s, wrong: s.wrong + 1 }))
-      if (isCorrect) {
+      const isDone = outcome !== 'again'
+      answerCard(deck.id, currentCard.id, outcome)
+      setStats((s) => ({ ...s, [outcome]: s[outcome] + 1 }))
+      if (isDone) {
         setCompletedIds((prev) => new Set(prev).add(currentCard.id))
       }
 
@@ -84,7 +87,7 @@ export function TrainingPage() {
       transitionTimeoutRef.current = setTimeout(() => {
         setSession((prev) => {
           const [, ...rest] = prev.queue
-          return { ...prev, queue: isCorrect ? rest : [...rest, currentCard.id] }
+          return { ...prev, queue: isDone ? rest : [...rest, currentCard.id] }
         })
         setIsTransitioning(false)
       }, FLIP_BACK_DELAY_MS)
@@ -94,12 +97,14 @@ export function TrainingPage() {
 
   // Для режима ввода с клавиатуры результат уже показан внутри TypingCard (правильный ответ виден
   // пользователю до перехода дальше), поэтому здесь можно сразу переходить к следующему слову —
-  // задержка, как при перевороте карточки, не нужна
+  // задержка, как при перевороте карточки, не нужна. Правильный ответ засчитывается как «Хорошо»,
+  // неверный (или «сдаюсь») — как «Ещё раз», т.к. в этом режиме нет самооценки сложности
   const handleTypingResult = useCallback(
     (isCorrect) => {
       if (!currentCard || !deck) return
-      answerCard(deck.id, currentCard.id, isCorrect)
-      setStats((s) => (isCorrect ? { ...s, correct: s.correct + 1 } : { ...s, wrong: s.wrong + 1 }))
+      const outcome = isCorrect ? 'good' : 'again'
+      answerCard(deck.id, currentCard.id, outcome)
+      setStats((s) => ({ ...s, [outcome]: s[outcome] + 1 }))
       if (isCorrect) {
         setCompletedIds((prev) => new Set(prev).add(currentCard.id))
       }
@@ -115,14 +120,15 @@ export function TrainingPage() {
     if (!deck) return
     clearTimeout(transitionTimeoutRef.current)
     setSession(buildSessionQueue(deck.cards))
-    setStats({ correct: 0, wrong: 0 })
+    setStats(EMPTY_STATS)
     setCompletedIds(new Set())
     setIsFlipped(false)
     setIsTransitioning(false)
   }
 
-  // Горячие клавиши для режима карточек: пробел — перевернуть, 1 — «не знаю», 2 — «знаю».
-  // В режиме ввода с клавиатуры они не нужны — там управление через Enter внутри поля ввода
+  // Горячие клавиши для режима карточек: пробел — перевернуть, 1 — «ещё раз», 2 — «трудно»,
+  // 3 — «хорошо», 4 — «легко». В режиме ввода с клавиатуры они не нужны — там управление
+  // через Enter внутри поля ввода
   useEffect(() => {
     if (isTyping) return
     function onKeyDown(e) {
@@ -131,9 +137,13 @@ export function TrainingPage() {
         e.preventDefault()
         if (!isFlipped) setIsFlipped(true)
       } else if (isFlipped && e.key === '1') {
-        handleAnswer(false)
+        handleAnswer('again')
       } else if (isFlipped && e.key === '2') {
-        handleAnswer(true)
+        handleAnswer('hard')
+      } else if (isFlipped && e.key === '3') {
+        handleAnswer('good')
+      } else if (isFlipped && e.key === '4') {
+        handleAnswer('easy')
       }
     }
     window.addEventListener('keydown', onKeyDown)
@@ -172,8 +182,10 @@ export function TrainingPage() {
         <h2>Сессия завершена</h2>
         <p className={styles.summaryLine}>Слов повторено: {session.total}</p>
         <div className={styles.summaryRow}>
-          <span className={styles.know}>Знаю: {stats.correct}</span>
-          <span className={styles.dontKnow}>Не знаю: {stats.wrong}</span>
+          <span className={styles.again}>Ещё раз: {stats.again}</span>
+          <span className={styles.hard}>Трудно: {stats.hard}</span>
+          <span className={styles.good}>Хорошо: {stats.good}</span>
+          <span className={styles.easy}>Легко: {stats.easy}</span>
         </div>
         <div className={styles.summaryActions}>
           <button type="button" className="btn" onClick={() => navigate(`/deck/${deck.id}`)}>
@@ -243,11 +255,17 @@ export function TrainingPage() {
             <p className={styles.hintText}>Нажмите на карточку или пробел, чтобы увидеть перевод</p>
           ) : (
             <div className={styles.answerButtons}>
-              <button type="button" className={styles.dontKnowBtn} onClick={() => handleAnswer(false)}>
-                Не знаю <span className={styles.key}>1</span>
+              <button type="button" className={styles.againBtn} onClick={() => handleAnswer('again')}>
+                Ещё раз <span className={styles.key}>1</span>
               </button>
-              <button type="button" className={styles.knowBtn} onClick={() => handleAnswer(true)}>
-                Знаю <span className={styles.key}>2</span>
+              <button type="button" className={styles.hardBtn} onClick={() => handleAnswer('hard')}>
+                Трудно <span className={styles.key}>2</span>
+              </button>
+              <button type="button" className={styles.goodBtn} onClick={() => handleAnswer('good')}>
+                Хорошо <span className={styles.key}>3</span>
+              </button>
+              <button type="button" className={styles.easyBtn} onClick={() => handleAnswer('easy')}>
+                Легко <span className={styles.key}>4</span>
               </button>
             </div>
           )}

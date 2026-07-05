@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { loadAppData, saveAppData } from '../storage/storage'
 import { createCard, createDeck } from '../storage/models'
-import { applyAnswer, todayStr } from '../storage/leitner'
+import { applyAnswer, nowIso, todayStr } from '../storage/leitner'
 
 const AppDataContext = createContext(null)
 
@@ -128,9 +128,10 @@ export function AppDataProvider({ children }) {
         }))
       },
 
-      // Применить ответ пользователя («Знаю» / «Не знаю») к карточке
+      // Применить ответ пользователя (outcome: 'again' | 'hard' | 'good' | 'easy') к карточке
       // и отметить сегодняшний день в истории тренировок (для стрика и графика)
-      answerCard(deckId, cardId, isCorrect) {
+      answerCard(deckId, cardId, outcome) {
+        const moment = nowIso()
         const today = todayStr()
         setData((prev) => ({
           ...prev,
@@ -139,7 +140,7 @@ export function AppDataProvider({ children }) {
               ? {
                   ...d,
                   cards: d.cards.map((c) =>
-                    c.id === cardId ? applyAnswer(c, isCorrect, today) : c
+                    c.id === cardId ? applyAnswer(c, outcome, moment) : c
                   ),
                 }
               : d

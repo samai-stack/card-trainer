@@ -15,6 +15,8 @@
   --color-success-hover: #22c085;
   --color-danger: #f76a6a;
   --color-danger-hover: #f14e4e;
+  --color-hard: #f5a34b;
+  --color-hard-hover: #f0922e;
   --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.35);
   --radius-md: 12px;
   --radius-lg: 20px;
@@ -36,6 +38,8 @@
   --color-success-hover: #0e8f62;
   --color-danger: #e0433f;
   --color-danger-hover: #c8322e;
+  --color-hard: #dd8324;
+  --color-hard-hover: #c8721a;
   --shadow-soft: 0 10px 30px rgba(30, 20, 60, 0.12);
 
   color-scheme: light;

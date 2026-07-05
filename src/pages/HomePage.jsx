@@ -1,19 +1,35 @@
 // Главная страница: список колод + создание новой колоды
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAppData } from '../context/AppDataContext'
 import { DeckTile } from '../components/DeckTile'
 import { ConfirmDialog } from '../components/ConfirmDialog'
 import { DailyGoalWidget } from '../components/DailyGoalWidget'
+import { GenerateDeckDialog } from '../components/GenerateDeckDialog'
 import { TOP_1000_WORDS } from '../storage/topWords'
 import styles from './HomePage.module.css'
 
 const TOP_1000_DECK_NAME = 'Топ-1000 слов'
 
 export function HomePage() {
+  const navigate = useNavigate()
   const { decks, addDeck, importDeck, renameDeck, deleteDeck } = useAppData()
   const [newDeckName, setNewDeckName] = useState('')
   const [deckToDelete, setDeckToDelete] = useState(null) // id колоды, которую собираемся удалить
   const [warning, setWarning] = useState('')
+  const [showGenerateDialog, setShowGenerateDialog] = useState(false)
+
+  function handleGeneratedDeck(name, words) {
+    let finalName = name
+    let suffix = 2
+    while (decks.some((d) => d.name.trim().toLowerCase() === finalName.toLowerCase())) {
+      finalName = `${name} (${suffix})`
+      suffix += 1
+    }
+    const deck = importDeck(finalName, words)
+    setShowGenerateDialog(false)
+    navigate(`/deck/${deck.id}`)
+  }
 
   const hasTop1000Deck = decks.some(
     (d) => d.name.trim().toLowerCase() === TOP_1000_DECK_NAME.toLowerCase()
@@ -62,17 +78,34 @@ export function HomePage() {
         </form>
         {warning && <p className={styles.warning}>{warning}</p>}
 
-        <button
-          type="button"
-          className={styles.presetBtn}
-          disabled={hasTop1000Deck}
-          onClick={handleImportTop1000}
-        >
-          {hasTop1000Deck
-            ? `Колода «${TOP_1000_DECK_NAME}» уже добавлена`
-            : `+ Добавить готовую колоду «${TOP_1000_DECK_NAME}»`}
-        </button>
+        <div className={styles.presetRow}>
+          <button
+            type="button"
+            className={styles.presetBtn}
+            disabled={hasTop1000Deck}
+            onClick={handleImportTop1000}
+          >
+            {hasTop1000Deck
+              ? `Колода «${TOP_1000_DECK_NAME}» уже добавлена`
+              : `+ Добавить готовую колоду «${TOP_1000_DECK_NAME}»`}
+          </button>
+
+          <button
+            type="button"
+            className={styles.presetBtn}
+            onClick={() => setShowGenerateDialog(true)}
+          >
+            🤖 Сгенерировать колоду по теме
+          </button>
+        </div>
       </div>
+
+      {showGenerateDialog && (
+        <GenerateDeckDialog
+          onClose={() => setShowGenerateDialog(false)}
+          onGenerate={handleGeneratedDeck}
+        />
+      )}
 
       {decks.length === 0 ? (
         <p className={styles.empty}>

@@ -24,8 +24,13 @@
   font-size: 14px;
 }
 
+.presetRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .presetBtn {
-  align-self: flex-start;
   background: transparent;
   border: 1px dashed var(--color-border);
   color: var(--color-text-secondary);

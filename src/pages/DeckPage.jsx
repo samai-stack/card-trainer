@@ -5,6 +5,7 @@ import { useAppData } from '../context/AppDataContext'
 import { WordForm } from '../components/WordForm'
 import { WordRow } from '../components/WordRow'
 import { ConfirmDialog } from '../components/ConfirmDialog'
+import { ImportDialog } from '../components/ImportDialog'
 import { countDueToday } from '../storage/leitner'
 import { lookupEmoji } from '../storage/emojiDictionary'
 import { resizeImageFile, filenameToWordKey } from '../storage/imageUtils'
@@ -14,9 +15,11 @@ import styles from './DeckPage.module.css'
 export function DeckPage() {
   const { deckId } = useParams()
   const navigate = useNavigate()
-  const { decks, addCard, updateCard, deleteCard, findDuplicate, t, language } = useAppData()
+  const { decks, addCard, addCards, updateCard, deleteCard, findDuplicate, t, language } = useAppData()
   const [search, setSearch] = useState('')
   const [cardToDelete, setCardToDelete] = useState(null)
+  const [showImportDialog, setShowImportDialog] = useState(false)
+  const [importMessage, setImportMessage] = useState('')
   // Направление тренировки: обычное (слово → перевод) или обратное (перевод → слово)
   const [direction, setDirection] = useState('forward')
   // Способ ответа: переворот карточки, ввод слова с клавиатуры или аудирование (озвучка)
@@ -217,6 +220,25 @@ export function DeckPage() {
         onAdd={(fields) => addCard(deck.id, fields)}
         checkDuplicate={(word) => findDuplicate(deck.id, word)}
       />
+
+      <div className={styles.imagesTools}>
+        <button type="button" className="btn" onClick={() => setShowImportDialog(true)}>
+          {t('deck.bulkImport')}
+        </button>
+        {importMessage && <p className={styles.imagesMessage}>{importMessage}</p>}
+      </div>
+
+      {showImportDialog && (
+        <ImportDialog
+          checkDuplicate={(word) => findDuplicate(deck.id, word)}
+          onClose={() => setShowImportDialog(false)}
+          onImport={(cards) => {
+            addCards(deck.id, cards)
+            setImportMessage(t('deck.importSuccess', { count: cards.length }))
+            setShowImportDialog(false)
+          }}
+        />
+      )}
 
       {deck.cards.length > 0 && (
         <div className={styles.imagesTools}>

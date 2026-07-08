@@ -110,6 +110,16 @@ export function AppDataProvider({ children }) {
         return card
       },
 
+      // Добавить сразу несколько карточек (массовый импорт) одним обновлением состояния
+      addCards(deckId, cardFieldsList) {
+        const cards = cardFieldsList.map((fields) => createCard(fields))
+        setData((prev) => ({
+          ...prev,
+          decks: prev.decks.map((d) => (d.id === deckId ? { ...d, cards: [...d.cards, ...cards] } : d)),
+        }))
+        return cards
+      },
+
       updateCard(deckId, cardId, updates) {
         setData((prev) => ({
           ...prev,

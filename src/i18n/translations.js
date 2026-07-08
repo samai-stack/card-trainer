@@ -61,6 +61,8 @@ const ru = {
   'deck.listenModeTranslate': 'Перевод',
   'deck.listenModeDictation': 'Слово на слух',
   'deck.startTraining': 'Начать тренировку',
+  'deck.bulkImport': '📋 Массовый импорт слов',
+  'deck.importSuccess': 'Добавлено слов: {{count}}',
   'deck.autoFillEmoji': '🎲 Заполнить эмодзи автоматически',
   'deck.bulkUpload': '📁 Загрузить картинки пачкой',
   'deck.allHaveImages': 'У всех слов уже есть картинка',
@@ -164,6 +166,16 @@ const ru = {
   'reminder.notificationTitle': 'Пора потренироваться! 🧠',
   'reminder.notificationBody': 'Сегодня повторено {{done}} из {{goal}} слов. Загляните в тренажёр карточек.',
 
+  // Массовый импорт слов
+  'import.title': '📋 Массовый импорт слов',
+  'import.placeholder': 'cat - кот - The cat is sleeping\ndog - собака\nrun - бежать',
+  'import.hint':
+    'По одному слову на строку. Поля разделяйте табуляцией (при вставке из таблицы), дефисом «слово - перевод - пример» или запятой/точкой с запятой. Пример не обязателен.',
+  'import.willAdd': 'Будет добавлено: {{count}}',
+  'import.duplicatesSkipped': 'Пропущено (уже есть в колоде): {{count}}',
+  'import.invalidSkipped': 'Не распознано строк: {{count}}',
+  'import.submit': 'Импортировать ({{count}})',
+
   // Генерация колоды
   'generate.title': '🤖 Сгенерировать колоду по теме',
   'generate.topicLabel': 'Тема',
@@ -239,6 +251,8 @@ const en = {
   'deck.listenModeTranslate': 'Translation',
   'deck.listenModeDictation': 'Word you heard',
   'deck.startTraining': 'Start practice',
+  'deck.bulkImport': '📋 Bulk import words',
+  'deck.importSuccess': '{{count}} words added',
   'deck.autoFillEmoji': '🎲 Auto-fill emoji',
   'deck.bulkUpload': '📁 Bulk upload images',
   'deck.allHaveImages': 'All words already have an image',
@@ -331,6 +345,16 @@ const en = {
   'reminder.note': "The reminder only fires while the app's tab is open in the browser at that moment.",
   'reminder.notificationTitle': 'Time to practice! 🧠',
   'reminder.notificationBody': "You've reviewed {{done}} of {{goal}} words today. Open the flashcard trainer.",
+
+  // Bulk word import
+  'import.title': '📋 Bulk import words',
+  'import.placeholder': 'cat - кот - The cat is sleeping\ndog - собака\nrun - бежать',
+  'import.hint':
+    "One word per line. Separate fields with a tab (when pasting from a spreadsheet), a dash \"word - translation - example\", or a comma/semicolon. The example is optional.",
+  'import.willAdd': '{{count}} to be added',
+  'import.duplicatesSkipped': '{{count}} skipped (already in deck)',
+  'import.invalidSkipped': "{{count}} line(s) not recognized",
+  'import.submit': 'Import ({{count}})',
 
   'generate.title': '🤖 Generate a deck by topic',
   'generate.topicLabel': 'Topic',

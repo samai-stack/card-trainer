@@ -7,9 +7,11 @@ import { ConfirmDialog } from '../components/ConfirmDialog'
 import { DailyGoalWidget } from '../components/DailyGoalWidget'
 import { GenerateDeckDialog } from '../components/GenerateDeckDialog'
 import { TOP_1000_WORDS } from '../storage/topWords'
+import { TOP_100_PHRASES } from '../storage/topPhrases'
 import styles from './HomePage.module.css'
 
 const TOP_1000_DECK_NAME = 'Топ-1000 слов'
+const TOP_100_PHRASES_DECK_NAME = 'Топ-100 фраз'
 
 export function HomePage() {
   const navigate = useNavigate()
@@ -38,6 +40,15 @@ export function HomePage() {
   function handleImportTop1000() {
     if (hasTop1000Deck) return
     importDeck(TOP_1000_DECK_NAME, TOP_1000_WORDS)
+  }
+
+  const hasTop100PhrasesDeck = decks.some(
+    (d) => d.name.trim().toLowerCase() === TOP_100_PHRASES_DECK_NAME.toLowerCase()
+  )
+
+  function handleImportTop100Phrases() {
+    if (hasTop100PhrasesDeck) return
+    importDeck(TOP_100_PHRASES_DECK_NAME, TOP_100_PHRASES)
   }
 
   function handleCreateDeck(e) {
@@ -86,6 +97,15 @@ export function HomePage() {
             onClick={handleImportTop1000}
           >
             {hasTop1000Deck ? t('home.top1000Added') : t('home.top1000Add')}
+          </button>
+
+          <button
+            type="button"
+            className={styles.presetBtn}
+            disabled={hasTop100PhrasesDeck}
+            onClick={handleImportTop100Phrases}
+          >
+            {hasTop100PhrasesDeck ? t('home.top100PhrasesAdded') : t('home.top100PhrasesAdd')}
           </button>
 
           <button
